@@ -1,7 +1,15 @@
 import React from 'react';
 import { Bell, Moon, Menu } from 'lucide-react';
 
-export default function TopBar({ onMenuClick }) {
+export default function TopBar({ onMenuClick, activeTab = 'dashboard' }) {
+  const getTabLabel = () => {
+    switch(activeTab) {
+      case 'dashboard': return 'Dashboard';
+      case 'tenants': return 'Tenant Management';
+      default: return 'Dashboard';
+    }
+  };
+
   return (
     <div className="flex items-center justify-between px-8 py-4 bg-card border-b border-black/5">
       <div className="flex items-center gap-4">
@@ -12,7 +20,7 @@ export default function TopBar({ onMenuClick }) {
         <div className="flex items-center text-sm font-medium">
           <span className="text-text-secondary">Landlord Portal</span>
           <span className="mx-2 text-text-tertiary">›</span>
-          <span className="font-semibold text-text-primary">Dashboard</span>
+          <span className="font-semibold text-text-primary">{getTabLabel()}</span>
         </div>
       </div>
       

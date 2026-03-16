@@ -10,7 +10,7 @@ import {
   Sliders
 } from 'lucide-react';
 
-export default function Sidebar({ isOpen }) {
+export default function Sidebar({ isOpen, activeTab, onTabSelect }) {
   return (
     <div 
       className={`h-full bg-sidebar-bg flex flex-col transition-all duration-300 ease-in-out shrink-0 border-r border-[#1f2937] ${
@@ -36,21 +36,36 @@ export default function Sidebar({ isOpen }) {
             Main Menu
           </h3>
           
-          <a href="#" className={`flex items-center rounded-lg bg-sidebar-active text-[#0f9d78] transition-colors relative group ${isOpen ? 'justify-between px-3 py-2.5' : 'justify-center p-3 mx-1'}`}>
+          <a 
+            href="#" 
+            onClick={(e) => { e.preventDefault(); onTabSelect('dashboard'); }}
+            className={`flex items-center rounded-lg transition-colors relative group ${
+              activeTab === 'dashboard' ? 'bg-sidebar-active text-[#0f9d78]' : 'text-slate-400 hover:text-slate-200 hover:bg-sidebar-hover'
+            } ${isOpen ? 'justify-between px-3 py-2.5' : 'justify-center p-3 mx-1'}`}
+          >
             <div className="flex items-center gap-3">
-              <LayoutDashboard className="w-5 h-5 shrink-0 text-[#0f9d78]" />
+              <LayoutDashboard className={`w-5 h-5 shrink-0 ${activeTab === 'dashboard' ? 'text-[#0f9d78]' : 'group-hover:text-slate-200 transition-colors'}`} />
               <span className={`font-medium whitespace-nowrap transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
                 Dashboard
               </span>
             </div>
-            {isOpen && <div className="w-1.5 h-1.5 rounded-full bg-[#0f9d78]"></div>}
+            {isOpen && activeTab === 'dashboard' && <div className="w-1.5 h-1.5 rounded-full bg-[#0f9d78]"></div>}
           </a>
 
-          <a href="#" className={`flex items-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-sidebar-hover transition-colors group ${isOpen ? 'gap-3 px-3 py-2.5' : 'justify-center p-3 mx-1'}`}>
-            <Users className="w-5 h-5 shrink-0 group-hover:text-slate-200 transition-colors" />
-            <span className={`font-medium whitespace-nowrap transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
-              Tenant Management
-            </span>
+          <a 
+            href="#" 
+            onClick={(e) => { e.preventDefault(); onTabSelect('tenants'); }}
+            className={`flex items-center rounded-lg transition-colors relative group ${
+              activeTab === 'tenants' ? 'bg-sidebar-active text-[#0f9d78]' : 'text-slate-400 hover:text-slate-200 hover:bg-sidebar-hover'
+            } ${isOpen ? 'justify-between px-3 py-2.5' : 'justify-center p-3 mx-1'}`}
+          >
+            <div className="flex items-center gap-3">
+              <Users className={`w-5 h-5 shrink-0 ${activeTab === 'tenants' ? 'text-[#0f9d78]' : 'group-hover:text-slate-200 transition-colors'}`} />
+              <span className={`font-medium whitespace-nowrap transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
+                Tenant Management
+              </span>
+            </div>
+            {isOpen && activeTab === 'tenants' && <div className="w-1.5 h-1.5 rounded-full bg-[#0f9d78]"></div>}
           </a>
 
           <a href="#" className={`flex items-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-sidebar-hover transition-colors group ${isOpen ? 'gap-3 px-3 py-2.5' : 'justify-center p-3 mx-1'}`}>
