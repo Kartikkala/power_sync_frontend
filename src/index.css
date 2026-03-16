@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg text-text-primary antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer components {
+  /* Common card classes */
+  .premium-card {
+    @apply bg-card rounded-2xl shadow-card border border-black/5 transition-transform hover:-translate-y-0.5 hover:shadow-lg p-6;
+  }
+  
+  .dark-rate-card {
+    @apply bg-dark-card text-white border-2 border-accent-orange rounded-2xl p-6 shadow-card transition-transform hover:-translate-y-0.5 hover:shadow-lg;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-accent-primary text-white rounded-xl transition-colors hover:bg-accent-primary-hover cursor-pointer outline-none border-none;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-bg text-text-primary border border-slate-200 rounded-xl transition-colors hover:bg-slate-100 cursor-pointer outline-none;
+  }
+
+  .btn-dark {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-1.5 text-xs font-medium bg-white/10 text-white border border-white/20 rounded-lg transition-colors hover:bg-white/20 cursor-pointer outline-none;
+  }
+
+  .badge-success {
+    @apply inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full;
+  }
+
+  .icon-wrap-orange {
+    @apply w-12 h-12 rounded-xl flex items-center justify-center bg-accent-orange-light text-accent-orange;
+  }
+  .icon-wrap-green {
+    @apply w-12 h-12 rounded-xl flex items-center justify-center bg-green-100 text-green-600;
+  }
+  .icon-wrap-blue {
+    @apply w-12 h-12 rounded-xl flex items-center justify-center bg-accent-blue-light text-accent-blue;
+  }
+  .icon-wrap-purple {
+    @apply w-12 h-12 rounded-xl flex items-center justify-center bg-accent-purple-light text-accent-purple;
+  }
+  
+  /* Tabs */
+  .tab {
+    @apply py-3 font-medium text-text-secondary cursor-pointer border-b-2 border-transparent transition-all hover:text-text-primary;
+  }
+  .tab.active {
+    @apply text-text-primary border-accent-primary;
+  }
+}
