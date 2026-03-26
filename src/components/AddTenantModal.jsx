@@ -18,7 +18,7 @@ export default function AddTenantModal({ isOpen, onClose }) {
       {/* Modal Content */}
       <div className="relative bg-card w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-black/5">
+        <div className="flex items-center justify-between p-6 border-b border-divider">
           <h2 className="text-xl font-bold text-text-primary">Add New Tenant</h2>
           <button 
             onClick={onClose}
@@ -48,7 +48,7 @@ export default function AddTenantModal({ isOpen, onClose }) {
                   <input 
                     type="text" 
                     placeholder="e.g. John Doe"
-                    className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
+                    className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
                   />
                 </div>
               </div>
@@ -63,7 +63,7 @@ export default function AddTenantModal({ isOpen, onClose }) {
                     <input 
                       type="text" 
                       placeholder="+1 (555) 000-0000"
-                      className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
+                      className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
                     />
                   </div>
                 </div>
@@ -76,7 +76,7 @@ export default function AddTenantModal({ isOpen, onClose }) {
                     <input 
                       type="email" 
                       placeholder="john@example.com"
-                      className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
+                      className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
                     />
                   </div>
                 </div>
@@ -98,13 +98,13 @@ export default function AddTenantModal({ isOpen, onClose }) {
                   <input 
                     type="text" 
                     placeholder="101"
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
+                    className="w-full px-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
                   />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-primary mb-1.5">Unit Type</label>
-                <select className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all appearance-none cursor-pointer">
+                <select className="w-full px-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all appearance-none cursor-pointer">
                   <option>Standard</option>
                   <option>Premium</option>
                   <option>Commercial</option>
@@ -119,7 +119,7 @@ export default function AddTenantModal({ isOpen, onClose }) {
                   <input 
                     type="text" 
                     placeholder="SM-2024-X8"
-                    className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
+                    className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
                   />
                 </div>
               </div>
@@ -139,7 +139,7 @@ export default function AddTenantModal({ isOpen, onClose }) {
                 <div className="relative">
                   <input 
                     type="date" 
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
+                    className="w-full px-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
                   />
                 </div>
               </div>
@@ -182,10 +182,10 @@ export default function AddTenantModal({ isOpen, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-black/5 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
+        <div className="p-6 border-t border-divider bg-bg/50 rounded-b-2xl flex justify-end gap-3">
           <button 
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-text-primary bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-text-primary bg-bg border border-divider rounded-lg hover:bg-slate-50 transition-colors"
           >
             Cancel
           </button>

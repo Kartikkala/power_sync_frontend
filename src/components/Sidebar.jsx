@@ -76,13 +76,22 @@ export default function Sidebar({ isOpen, activeTab, onTabSelect }) {
           </a>
 
           {/* Transactions */}
-          <a href="#" className={`flex items-center rounded-lg bg-[#27201c] border border-orange-500/20 text-[#f97316] transition-colors mt-2 ${isOpen ? 'justify-between px-3 py-2.5' : 'justify-center p-3 mx-1'}`}>
+          <a 
+            href="#" 
+            onClick={(e) => { e.preventDefault(); onTabSelect('transactions'); }}
+            className={`flex items-center rounded-lg border transition-colors mt-2 ${
+              activeTab === 'transactions' 
+                ? 'bg-[#27201c] border-orange-500/20 text-[#f97316]' 
+                : 'text-slate-400 border-transparent hover:text-slate-200 hover:bg-sidebar-hover'
+            } ${isOpen ? 'justify-between px-3 py-2.5' : 'justify-center p-3 mx-1'}`}
+          >
             <div className="flex items-center gap-3">
-              <WalletCards className="w-5 h-5 shrink-0 text-[#f97316]" />
+              <WalletCards className={`w-5 h-5 shrink-0 ${activeTab === 'transactions' ? 'text-[#f97316]' : 'group-hover:text-slate-200 transition-colors'}`} />
               <span className={`font-medium whitespace-nowrap transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
                 Transactions
               </span>
             </div>
+            {isOpen && activeTab === 'transactions' && <div className="w-1.5 h-1.5 rounded-full bg-[#f97316]"></div>}
           </a>
         </div>
 

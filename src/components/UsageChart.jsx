@@ -24,7 +24,7 @@ export default function UsageChart() {
         </div>
         
         <div className="flex bg-slate-100 p-1 rounded-lg">
-          <button className="px-4 py-1 text-sm font-medium bg-white rounded-md shadow-sm">Live</button>
+          <button className="px-4 py-1 text-sm font-medium bg-card rounded-md shadow-sm">Live</button>
           <button className="px-4 py-1 text-sm font-medium text-text-secondary hover:text-text-primary">1H</button>
           <button className="px-4 py-1 text-sm font-medium text-text-secondary hover:text-text-primary">24H</button>
         </div>
@@ -33,17 +33,17 @@ export default function UsageChart() {
       <div className="relative h-[300px] w-full">
         {/* Custom Legend floating on the left */}
         <div className="absolute top-4 left-4 z-10 flex flex-col gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-100 rounded-lg shadow-sm">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-card border border-divider rounded-lg shadow-sm">
             <span className="w-2 h-2 rounded-full bg-[#0f9d78]"></span>
             <span className="text-xs font-medium text-text-primary">Wattage:</span>
             <span className="text-xs font-bold text-[#0f9d78]">4.2 kW</span>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-100 rounded-lg shadow-sm">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-card border border-divider rounded-lg shadow-sm">
             <span className="w-2 h-2 rounded-full bg-[#f97316]"></span>
             <span className="text-xs font-medium text-text-primary">Voltage:</span>
             <span className="text-xs font-bold text-[#f97316]">230 V</span>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-100 rounded-lg shadow-sm">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-card border border-divider rounded-lg shadow-sm">
             <span className="w-2 h-2 rounded-full bg-[#a855f7]"></span>
             <span className="text-xs font-medium text-text-primary">Current:</span>
             <span className="text-xs font-bold text-[#a855f7]">18.5 A</span>

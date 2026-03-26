@@ -14,15 +14,14 @@ export default function TenantManagement() {
           <p className="text-text-secondary mt-1 text-sm">Manage tenant connections, billing, and access controls.</p>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="bg-card rounded-2xl shadow-card border border-divider p-1">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5">
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-tertiary">
-              <Search className="w-4 h-4" />
-            </div>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
             <input 
               type="text" 
               placeholder="Search tenants..."
-              className="pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary w-64 shadow-sm"
+              className="pl-9 pr-4 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary w-64 shadow-sm placeholder:text-text-tertiary"
             />
           </div>
           <button 
@@ -33,6 +32,7 @@ export default function TenantManagement() {
             Add New Tenant
           </button>
         </div>
+      </div>
       </div>
 
       {/* Metric Cards Row */}
@@ -83,11 +83,28 @@ export default function TenantManagement() {
       </div>
 
       {/* Table Section */}
-      <div className="bg-card rounded-2xl shadow-card border border-black/5 overflow-hidden">
+      <div className="bg-card rounded-2xl shadow-card border border-divider overflow-hidden flex flex-col">
+        {/* Table Header area */}
+        <div className="p-6 border-b border-divider flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <h2 className="text-lg font-bold text-text-primary">All Tenants</h2>
+            <span className="px-2.5 py-1 bg-bg text-text-secondary rounded-md text-xs font-medium border border-divider">
+              24 Total
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-text-secondary border border-divider rounded-lg hover:bg-hover-bg transition-colors">
+              <Calendar className="w-4 h-4" />
+              This Month
+            </button>
+          </div>
+        </div>
+
+        {/* Data Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
-              <tr className="border-b border-black/10">
+              <tr className="border-b border-divider bg-bg/50">
                 <th className="px-6 py-4 text-xs font-semibold text-text-secondary uppercase tracking-wider">Tenant Name / Room #</th>
                 <th className="px-6 py-4 text-xs font-semibold text-text-secondary uppercase tracking-wider">Connection Status</th>
                 <th className="px-6 py-4 text-xs font-semibold text-text-secondary uppercase tracking-wider">Current Usage</th>
@@ -99,7 +116,7 @@ export default function TenantManagement() {
             <tbody className="divide-y divide-black/5">
               
               {/* Row 1 */}
-              <tr className="hover:bg-slate-50/50 transition-colors">
+              <tr className="hover:bg-hover-bg transition-colors">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">JD</div>
@@ -147,7 +164,7 @@ export default function TenantManagement() {
               </tr>
 
               {/* Row 2 */}
-              <tr className="hover:bg-slate-50/50 transition-colors">
+              <tr className="hover:bg-hover-bg transition-colors">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm">SP</div>
@@ -195,7 +212,7 @@ export default function TenantManagement() {
               </tr>
 
               {/* Row 3 */}
-              <tr className="hover:bg-slate-50/50 transition-colors">
+              <tr className="hover:bg-hover-bg transition-colors">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center font-bold text-sm">MJ</div>
@@ -243,7 +260,7 @@ export default function TenantManagement() {
               </tr>
 
               {/* Row 4 */}
-              <tr className="hover:bg-slate-50/50 transition-colors opacity-75">
+              <tr className="hover:bg-hover-bg transition-colors opacity-75">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-sm">EL</div>
@@ -290,7 +307,7 @@ export default function TenantManagement() {
               </tr>
 
               {/* Row 5 */}
-              <tr className="hover:bg-slate-50/50 transition-colors">
+              <tr className="hover:bg-hover-bg transition-colors">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-cyan-100 text-cyan-600 flex items-center justify-center font-bold text-sm">RC</div>
@@ -342,13 +359,13 @@ export default function TenantManagement() {
         </div>
 
         {/* Footer Pagination */}
-        <div className="p-4 border-t border-black/5 flex items-center justify-between">
+        <div className="p-4 border-t border-divider flex items-center justify-between">
           <p className="text-sm text-text-secondary">
             Showing <span className="font-semibold text-text-primary">1</span> to <span className="font-semibold text-text-primary">5</span> of <span className="font-semibold text-text-primary">24</span> tenants
           </p>
           <div className="flex gap-2">
-            <button className="px-3 py-1.5 text-sm font-medium text-text-tertiary border border-slate-200 rounded-lg cursor-not-allowed">Previous</button>
-            <button className="px-3 py-1.5 text-sm font-medium text-text-primary border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">Next</button>
+            <button className="px-3 py-1.5 text-sm font-medium text-text-tertiary border border-divider rounded-lg cursor-not-allowed">Previous</button>
+            <button className="px-3 py-1.5 text-sm font-medium text-text-primary border border-divider rounded-lg hover:bg-hover-bg transition-colors">Next</button>
           </div>
         </div>
       </div>

@@ -39,8 +39,8 @@ const trxnData = [
 
 export default function TransactionsTable() {
   return (
-    <div className="bg-card rounded-2xl shadow-card border border-black/5 overflow-hidden">
-      <div className="flex items-center justify-between p-6 border-b border-black/5">
+    <div className="bg-card rounded-2xl shadow-card border border-divider overflow-hidden">
+      <div className="flex items-center justify-between p-6 border-b border-divider">
         <h2 className="text-xl font-bold text-text-primary">Recent Tenant Transactions</h2>
         <a href="#" className="text-accent-primary text-sm font-medium hover:underline">View All</a>
       </div>
@@ -48,7 +48,7 @@ export default function TransactionsTable() {
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
-            <tr className="border-b border-black/5 bg-slate-50/50">
+            <tr className="border-b border-divider bg-bg/50">
               <th className="px-6 py-4 text-xs font-semibold text-text-secondary uppercase tracking-wider">Tenant / ID</th>
               <th className="px-6 py-4 text-xs font-semibold text-text-secondary uppercase tracking-wider">Date & Time</th>
               <th className="px-6 py-4 text-xs font-semibold text-text-secondary uppercase tracking-wider">Consumption</th>
@@ -57,9 +57,9 @@ export default function TransactionsTable() {
               <th className="px-6 py-4 text-xs font-semibold text-text-secondary uppercase tracking-wider text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-black/5">
+          <tbody className="divide-y divide-divider">
             {trxnData.map((trxn, index) => (
-              <tr key={index} className="hover:bg-slate-50/50 transition-colors">
+              <tr key={index} className="hover:bg-hover-bg transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-full text-white flex items-center justify-center font-medium ${trxn.color}`}>
@@ -93,7 +93,7 @@ export default function TransactionsTable() {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <button className="p-2 text-text-tertiary hover:bg-slate-100 rounded-lg hover:text-text-primary transition-colors inline-flex">
+                  <button className="p-2 text-text-tertiary hover:bg-hover-bg rounded-lg hover:text-text-primary transition-colors inline-flex">
                     <MoreVertical className="w-5 h-5" />
                   </button>
                 </td>

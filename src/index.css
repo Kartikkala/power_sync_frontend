@@ -5,8 +5,28 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-bg: #f7f9fc;
+    --color-card: #ffffff;
+    --color-text-primary: #1e293b;
+    --color-text-secondary: #64748b;
+    --color-text-tertiary: #94a3b8;
+    --color-divider: rgba(0, 0, 0, 0.05);
+    --color-divider-strong: rgba(0, 0, 0, 0.1);
+  }
+
+  .dark {
+    --color-bg: #0d1117;
+    --color-card: #151b23;
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #94a3b8;
+    --color-text-tertiary: #64748b;
+    --color-divider: rgba(255, 255, 255, 0.05);
+    --color-divider-strong: rgba(255, 255, 255, 0.1);
+  }
+
   body {
-    @apply bg-bg text-text-primary antialiased;
+    @apply bg-bg text-text-primary antialiased transition-colors duration-300;
     font-family: 'Inter', sans-serif;
   }
 }
@@ -14,7 +34,7 @@
 @layer components {
   /* Common card classes */
   .premium-card {
-    @apply bg-card rounded-2xl shadow-card border border-black/5 transition-transform hover:-translate-y-0.5 hover:shadow-lg p-6;
+    @apply bg-card rounded-2xl shadow-card border border-divider transition-transform hover:-translate-y-0.5 hover:shadow-lg p-6;
   }
   
   .dark-rate-card {
