@@ -51,6 +51,7 @@ export default function TopBar({ onMenuClick, activeTab = 'dashboard', isDarkMod
       case 'tenants': return 'Tenant Management';
       case 'transactions': return 'Transactions';
       case 'settings': return 'Settings';
+      case 'iot': return 'IoT Device Management';
       default: return 'Dashboard';
     }
   };

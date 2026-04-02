@@ -4,6 +4,7 @@ import LandlordDashboard from './components/LandlordDashboard';
 import TenantManagement from './components/TenantManagement';
 import TransactionsPage from './components/TransactionsPage';
 import SettingsPage from './components/SettingsPage';
+import IotDeviceControl from './components/IotDeviceControl';
 import Sidebar from './components/Sidebar';
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
             {activeTab === 'tenants' && <TenantManagement />}
             {activeTab === 'transactions' && <TransactionsPage />}
             {activeTab === 'settings' && <SettingsPage />}
+            {activeTab === 'iot' && <IotDeviceControl />}
           </div>
         </main>
       </div>
