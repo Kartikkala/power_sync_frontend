@@ -5,6 +5,7 @@ import TenantManagement from './components/TenantManagement';
 import TransactionsPage from './components/TransactionsPage';
 import SettingsPage from './components/SettingsPage';
 import IotDeviceControl from './components/IotDeviceControl';
+import BillingConfiguration from './components/BillingConfiguration';
 import Sidebar from './components/Sidebar';
 
 function App() {
@@ -80,6 +81,7 @@ function App() {
             {activeTab === 'transactions' && <TransactionsPage />}
             {activeTab === 'settings' && <SettingsPage />}
             {activeTab === 'iot' && <IotDeviceControl />}
+            {activeTab === 'billing' && <BillingConfiguration />}
           </div>
         </main>
       </div>

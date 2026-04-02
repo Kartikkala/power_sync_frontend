@@ -1,11 +1,22 @@
 import React, { useState } from 'react';
 import { Plus, IndianRupee, Users, Zap, TrendingUp, TrendingDown, Edit2, ShieldAlert, CreditCard } from 'lucide-react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setBaseRate } from '../store/billingSlice';
 import UsageChart from './UsageChart';
 import TransactionsTable from './TransactionsTable';
 import AddTenantModal from './AddTenantModal';
 
 export default function LandlordDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditingRate, setIsEditingRate] = useState(false);
+  const [tempRate, setTempRate] = useState('');
+  const globalBaseRate = useSelector((state) => state.billing.baseRate);
+  const dispatch = useDispatch();
+
+  const handleSaveRate = () => {
+    dispatch(setBaseRate(parseFloat(tempRate) || 0));
+    setIsEditingRate(false);
+  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -33,15 +44,35 @@ export default function LandlordDashboard() {
             <div className="w-10 h-10 rounded-xl bg-[#f97316]/20 text-[#f97316] flex items-center justify-center">
               <IndianRupee className="w-5 h-5" />
             </div>
-            <button className="btn-dark">
-              <Edit2 className="w-3 h-3" />
-              Edit
-            </button>
+            {isEditingRate ? (
+              <button className="btn-dark bg-green-500 hover:bg-green-600 text-white border-transparent" onClick={handleSaveRate}>
+                Save
+              </button>
+            ) : (
+              <button className="btn-dark" onClick={() => { setTempRate(globalBaseRate); setIsEditingRate(true); }}>
+                <Edit2 className="w-3 h-3" />
+                Edit
+              </button>
+            )}
           </div>
           <div className="mt-auto">
             <p className="text-sm text-slate-300 font-medium mb-1">Electricity Rate</p>
             <div className="flex items-baseline gap-1">
-              <h2 className="text-[2rem] font-bold text-white">₹8.50</h2>
+              <h2 className="text-[2rem] font-bold text-white flex items-center">
+                <span className="mr-1">₹</span>
+                {isEditingRate ? (
+                  <input 
+                    type="number"
+                    step="0.01"
+                    value={tempRate}
+                    onChange={(e) => setTempRate(e.target.value)}
+                    className="w-24 bg-transparent border-b border-white outline-none focus:border-[#f97316] text-[2rem] font-bold text-white p-0 m-0"
+                    autoFocus
+                  />
+                ) : (
+                  <span>{globalBaseRate.toFixed(2)}</span>
+                )}
+              </h2>
               <span className="text-slate-400 text-sm">/kWh</span>
             </div>
             <p className="text-xs text-slate-400 mt-4">Base rate for all calculations</p>
