@@ -57,20 +57,20 @@ export default function TopBar({ onMenuClick, activeTab = 'dashboard', isDarkMod
   };
 
   return (
-    <div className="flex items-center justify-between px-8 py-4 bg-card border-b border-divider">
-      <div className="flex items-center gap-4">
+    <div className="flex items-center justify-between px-4 md:px-8 py-4 bg-card border-b border-divider">
+      <div className="flex items-center gap-3 md:gap-4">
         <Menu 
           className="w-5 h-5 text-text-secondary cursor-pointer hover:text-text-primary transition-colors" 
           onClick={onMenuClick}
         />
         <div className="flex items-center text-sm font-medium">
-          <span className="text-text-secondary">Landlord Portal</span>
-          <span className="mx-2 text-text-tertiary">›</span>
+          <span className="text-text-secondary hidden sm:inline">Landlord Portal</span>
+          <span className="mx-2 text-text-tertiary hidden sm:inline">›</span>
           <span className="font-semibold text-text-primary">{getTabLabel()}</span>
         </div>
       </div>
       
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-4 md:gap-6">
         <div className="relative" ref={notificationsRef}>
           <div 
             className="cursor-pointer flex items-center justify-center relative p-1"

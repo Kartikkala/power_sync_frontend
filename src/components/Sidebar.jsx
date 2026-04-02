@@ -68,13 +68,6 @@ export default function Sidebar({ isOpen, activeTab, onTabSelect }) {
             {isOpen && activeTab === 'tenants' && <div className="w-1.5 h-1.5 rounded-full bg-[#0f9d78]"></div>}
           </a>
 
-          <a href="#" className={`flex items-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-sidebar-hover transition-colors group ${isOpen ? 'gap-3 px-3 py-2.5' : 'justify-center p-3 mx-1'}`}>
-            <BarChart3 className="w-5 h-5 shrink-0 group-hover:text-slate-200 transition-colors" />
-            <span className={`font-medium whitespace-nowrap transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
-              Real-time Analytics
-            </span>
-          </a>
-
           {/* Transactions */}
           <a 
             href="#" 
