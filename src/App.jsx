@@ -3,6 +3,7 @@ import TopBar from './components/TopBar';
 import LandlordDashboard from './components/LandlordDashboard';
 import TenantManagement from './components/TenantManagement';
 import TransactionsPage from './components/TransactionsPage';
+import SettingsPage from './components/SettingsPage';
 import Sidebar from './components/Sidebar';
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
             {activeTab === 'landlord' || activeTab === 'dashboard' ? <LandlordDashboard /> : null}
             {activeTab === 'tenants' && <TenantManagement />}
             {activeTab === 'transactions' && <TransactionsPage />}
+            {activeTab === 'settings' && <SettingsPage />}
           </div>
         </main>
       </div>

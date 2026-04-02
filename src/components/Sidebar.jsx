@@ -112,11 +112,20 @@ export default function Sidebar({ isOpen, activeTab, onTabSelect }) {
               IoT Device Control
             </span>
           </a>
-          <a href="#" className={`flex items-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-sidebar-hover transition-colors group ${isOpen ? 'gap-3 px-3 py-2.5' : 'justify-center p-3 mx-1'}`}>
-            <Settings className="w-5 h-5 shrink-0 group-hover:text-slate-200 transition-colors" />
-            <span className={`font-medium whitespace-nowrap transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
-              Settings
-            </span>
+          <a 
+            href="#" 
+            onClick={(e) => { e.preventDefault(); onTabSelect('settings'); }}
+            className={`flex items-center rounded-lg transition-colors relative group ${
+              activeTab === 'settings' ? 'bg-sidebar-active text-[#0f9d78]' : 'text-slate-400 hover:text-slate-200 hover:bg-sidebar-hover'
+            } ${isOpen ? 'justify-between px-3 py-2.5' : 'justify-center p-3 mx-1'}`}
+          >
+            <div className="flex items-center gap-3">
+              <Settings className={`w-5 h-5 shrink-0 ${activeTab === 'settings' ? 'text-[#0f9d78]' : 'group-hover:text-slate-200 transition-colors'}`} />
+              <span className={`font-medium whitespace-nowrap transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
+                Settings
+              </span>
+            </div>
+            {isOpen && activeTab === 'settings' && <div className="w-1.5 h-1.5 rounded-full bg-[#0f9d78]"></div>}
           </a>
         </div>
       </div>
