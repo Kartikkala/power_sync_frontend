@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Server, 
   Wifi, 
@@ -7,57 +7,113 @@ import {
   RefreshCcw, 
   Zap, 
   Activity, 
-  AlertTriangle 
+  AlertTriangle,
+  Eye
 } from 'lucide-react';
+import IncomingTelemetryModal from './IncomingTelemetryModal';
 
 export default function IotDeviceControl() {
+  const [telemetryHistory, setTelemetryHistory] = useState([]);
+  const [selectedDevice, setSelectedDevice] = useState(null);
+
   const [devices, setDevices] = useState([
     {
-      id: 'IOT-8921-A',
+      id: 'IOT-8921-A', // Connected unit
       unit: 'Unit 101',
       status: 'online',
       powerState: true,
-      currentDraw: '2.4 A',
-      voltage: '228 V',
+      currentDraw: 0,
+      voltage: 0,
+      power: 0,
+      energy: 0,
       signal: 85,
     },
     {
       id: 'IOT-8922-B',
       unit: 'Unit 102',
-      status: 'online',
-      powerState: true,
-      currentDraw: '1.1 A',
-      voltage: '230 V',
-      signal: 92,
+      status: 'offline',
+      powerState: false,
+      currentDraw: 0,
+      voltage: 0,
+      power: 0,
+      energy: 0,
+      signal: 0,
     },
     {
       id: 'IOT-8923-C',
       unit: 'Unit 204',
       status: 'offline',
       powerState: false,
-      currentDraw: '0.0 A',
-      voltage: '0 V',
+      currentDraw: 0,
+      voltage: 0,
+      power: 0,
+      energy: 0,
       signal: 0,
     },
     {
       id: 'IOT-8924-D',
       unit: 'Unit 301',
-      status: 'online',
+      status: 'offline',
       powerState: false,
-      currentDraw: '0.0 A',
-      voltage: '229 V',
-      signal: 78,
+      currentDraw: 0,
+      voltage: 0,
+      power: 0,
+      energy: 0,
+      signal: 0,
     },
     {
       id: 'IOT-8925-E',
       unit: 'Unit 302',
-      status: 'online',
-      powerState: true,
-      currentDraw: '5.6 A',
-      voltage: '226 V',
-      signal: 65,
+      status: 'offline',
+      powerState: false,
+      currentDraw: 0,
+      voltage: 0,
+      power: 0,
+      energy: 0,
+      signal: 0,
     }
   ]);
+
+  useEffect(() => {
+    let ws;
+    try {
+      ws = new WebSocket('ws://localhost:8999/ws/telemetry');
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        
+        setDevices(prev => prev.map(device => {
+          if (device.id === 'IOT-8921-A') {
+            return {
+              ...device,
+              voltage: data.voltage,
+              currentDraw: data.current,
+              power: data.power,
+              energy: data.energy
+            };
+          }
+          return device;
+        }));
+
+        setTelemetryHistory(prev => {
+          const newTrace = {
+            time: new Date().toLocaleTimeString(),
+            voltage: data.voltage,
+            power: data.power,
+            current: data.current
+          };
+          const updated = [...prev, newTrace];
+          return updated.slice(-20); // Keep last 20 readings for responsive charting
+        });
+      };
+    } catch (err) {
+      console.warn("WebSocket connection failed", err);
+    }
+    
+    return () => {
+      if (ws) ws.close();
+    };
+  }, []);
 
   const togglePower = (id) => {
     // Simulated async action
@@ -157,14 +213,14 @@ export default function IotDeviceControl() {
                   <span className="text-xs text-text-secondary mb-1">Current Draw</span>
                   <div className="flex items-center gap-1.5 text-text-primary font-bold">
                     <Zap className="w-3.5 h-3.5 text-orange-500" />
-                    {device.currentDraw}
+                    {device.currentDraw} A
                   </div>
                 </div>
                 <div className="flex flex-col bg-bg p-3 rounded-xl border border-divider">
                   <span className="text-xs text-text-secondary mb-1">Voltage</span>
                   <div className="flex items-center gap-1.5 text-text-primary font-bold">
                     <Activity className="w-3.5 h-3.5 text-blue-500" />
-                    {device.voltage}
+                    {device.voltage} V
                   </div>
                 </div>
               </div>
@@ -187,14 +243,16 @@ export default function IotDeviceControl() {
             <div className="p-5 border-t border-divider flex items-center justify-between">
               <div className="flex gap-2">
                 <button 
-                  className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors ${
+                  onClick={() => setSelectedDevice(device)}
+                  className={`text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-medium transition-colors ${
                     device.status === 'offline' 
                       ? 'bg-bg text-text-tertiary border-divider cursor-not-allowed' 
-                      : 'bg-bg text-text-secondary border-divider hover:bg-hover-bg hover:text-text-primary'
+                      : 'bg-card text-text-primary border-divider hover:bg-hover-bg hover:text-accent-primary'
                   }`}
                   disabled={device.status === 'offline'}
                 >
-                  Reboot
+                  <Eye className="w-3.5 h-3.5" />
+                  View Live Stats
                 </button>
               </div>
 
@@ -216,6 +274,12 @@ export default function IotDeviceControl() {
           </div>
         ))}
       </div>
+      <IncomingTelemetryModal 
+        isOpen={!!selectedDevice}
+        onClose={() => setSelectedDevice(null)}
+        device={selectedDevice}
+        history={telemetryHistory}
+      />
     </div>
   );
 }
