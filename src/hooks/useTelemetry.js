@@ -4,8 +4,8 @@ import useWebSocketLib from 'react-use-websocket';
 const useWebSocket = useWebSocketLib.default || useWebSocketLib;
 const ReadyState = useWebSocketLib.ReadyState;
 
-// Use relative path so the Vite proxy handles the WebSocket connection
-const WS_URL = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/telemetry`;
+// Connect directly to the WebSocket server on the same port as the REST API
+const WS_URL = `ws://${window.location.hostname}:8080/ws/telemetry`;
 
 export function useTelemetry() {
   const { lastJsonMessage, readyState } = useWebSocket(WS_URL, {

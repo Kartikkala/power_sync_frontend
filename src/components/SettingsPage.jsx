@@ -1,279 +1,142 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import { 
   User, 
-  Building2, 
   Mail, 
   Phone, 
-  CreditCard, 
-  Landmark, 
-  Bell, 
-  Globe, 
   ShieldCheck,
-  Save
+  CreditCard,
+  Globe,
+  Bell,
+  BadgeCheck,
+  Crown,
 } from 'lucide-react';
 
 export default function SettingsPage() {
-  const user = useSelector((state) => state.auth.user) || { role: 'landlord', name: 'Alexender Doe', email: 'landlord@electric.com' };
+  const user = useSelector((state) => state.auth.user) || {};
 
-  const [profile, setProfile] = useState({
-    name: user.name,
-    email: user.email,
-    phone: '+91 98765 43210',
-    company: 'Skyline Properties LLC'
-  });
+  const role = user.role || 'tenant';
+  const isLandlord = role === 'landlord';
 
-  const [billing, setBilling] = useState({
-    accountName: 'Alexender Doe',
-    bankName: 'HDFC Bank',
-    accountNumber: 'XXXX-XXXX-1234',
-    ifsc: 'HDFC0001234',
-    autoAcceptUPI: true
-  });
-
-  const [preferences, setPreferences] = useState({
-    currency: 'INR (₹)',
-    timezone: 'Asia/Kolkata',
-    emailAlerts: true,
-    smsReminders: false,
-    weeklyReports: true
-  });
+  // Read-only field component
+  const InfoField = ({ icon: Icon, label, value }) => (
+    <div className="space-y-1.5">
+      <label className="text-xs font-semibold text-text-tertiary uppercase tracking-wider">{label}</label>
+      <div className="flex items-center gap-3 px-4 py-3 bg-bg border border-divider rounded-xl">
+        <Icon className="w-4 h-4 text-text-tertiary shrink-0" />
+        <span className="text-sm font-medium text-text-primary truncate">{value || '—'}</span>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex flex-col gap-8 pb-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-[2rem] font-bold text-text-primary">Settings</h1>
-          <p className="text-text-secondary mt-1 text-sm">Manage your account, billing, and system preferences.</p>
-        </div>
-        <button className="btn-primary">
-          <Save className="w-4 h-4" />
-          Save Changes
-        </button>
+      <div>
+        <h1 className="text-[2rem] font-bold text-text-primary">Settings</h1>
+        <p className="text-text-secondary mt-1 text-sm">Your account details and preferences.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column (Profile & Preferences) */}
+        {/* Left Column */}
         <div className="lg:col-span-2 flex flex-col gap-8">
           
-          {/* Profile Settings */}
+          {/* Profile Card */}
           <section className="bg-card rounded-2xl shadow-card border border-divider overflow-hidden">
-            <div className="p-6 border-b border-divider flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-100/50 text-blue-600 flex items-center justify-center">
-                <User className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-text-primary">Profile Details</h2>
-                <p className="text-sm text-text-secondary">Your personal and company information</p>
+            {/* Profile Banner */}
+            <div className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-6 pb-16">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center backdrop-blur-sm border border-white/20">
+                  <User className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">Profile Details</h2>
+                  <p className="text-sm text-slate-400">Your personal information (read-only)</p>
+                </div>
               </div>
             </div>
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-text-secondary">Full Name</label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
-                  <input 
-                    type="text" 
-                    value={profile.name}
-                    onChange={(e) => setProfile({...profile, name: e.target.value})}
-                    className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                  />
-                </div>
-              </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-text-secondary">Email Address</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
-                  <input 
-                    type="email" 
-                    value={profile.email}
-                    onChange={(e) => setProfile({...profile, email: e.target.value})}
-                    className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                  />
-                </div>
+            {/* Avatar overlapping banner */}
+            <div className="relative px-6 -mt-10 mb-6">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#0f9d78] to-[#0d8a6a] flex items-center justify-center text-white text-2xl font-bold shadow-lg border-4 border-card">
+                {(user.fullname || user.email || 'U').charAt(0).toUpperCase()}
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-text-secondary">Phone Number</label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
-                  <input 
-                    type="text" 
-                    value={profile.phone}
-                    onChange={(e) => setProfile({...profile, phone: e.target.value})}
-                    className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                  />
-                </div>
-              </div>
-
-              {user.role === 'landlord' && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-text-secondary">Company / Property Name</label>
-                  <div className="relative">
-                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
-                    <input 
-                      type="text" 
-                      value={profile.company}
-                      onChange={(e) => setProfile({...profile, company: e.target.value})}
-                      className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                    />
-                  </div>
-                </div>
-              )}
+            <div className="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+              <InfoField icon={User} label="Full Name" value={user.fullname} />
+              <InfoField icon={Mail} label="Email Address" value={user.email} />
+              <InfoField icon={Phone} label="Phone Number" value={user.contactNo || user.contact_no} />
+              <InfoField 
+                icon={isLandlord ? Crown : BadgeCheck} 
+                label="Account Role" 
+                value={isLandlord ? 'Landlord Admin' : 'Tenant User'} 
+              />
             </div>
           </section>
 
-          {/* Billing & Bank Details */}
-          {user.role === 'landlord' ? (
-            <section className="bg-card rounded-2xl shadow-card border border-divider overflow-hidden">
-              <div className="p-6 border-b border-divider flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100/50 text-green-600 flex items-center justify-center">
-                  <Landmark className="w-5 h-5" />
-                </div>
+          {/* Payment Info */}
+          <section className="bg-card rounded-2xl shadow-card border border-divider overflow-hidden">
+            <div className="p-6 border-b border-divider flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-green-100/50 text-green-600 flex items-center justify-center">
+                <CreditCard className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-text-primary">Payments</h2>
+                <p className="text-sm text-text-secondary">Powered by Cashfree</p>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="flex items-start gap-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-xl">
+                <ShieldCheck className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
                 <div>
-                  <h2 className="text-lg font-bold text-text-primary">Bank & Billing</h2>
-                  <p className="text-sm text-text-secondary">Where you receive your tenant payments</p>
+                  <h4 className="font-semibold text-green-900 dark:text-green-400 text-sm">Secure Payment Gateway</h4>
+                  <p className="text-xs text-green-800/70 dark:text-green-400/70 mt-1">
+                    {isLandlord 
+                      ? 'Tenant payments are processed securely through Cashfree. Bills are automatically marked as paid when payment succeeds, and power is restored to the device.'
+                      : 'Your payments are processed securely through Cashfree. No card or bank details are stored in this application.'
+                    }
+                  </p>
                 </div>
               </div>
-              
-              <div className="p-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-secondary">Account Holder Name</label>
-                    <input 
-                      type="text" 
-                      value={billing.accountName}
-                      onChange={(e) => setBilling({...billing, accountName: e.target.value})}
-                      className="w-full px-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-secondary">Bank Name</label>
-                    <input 
-                      type="text" 
-                      value={billing.bankName}
-                      onChange={(e) => setBilling({...billing, bankName: e.target.value})}
-                      className="w-full px-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-secondary">Account Number</label>
-                    <div className="relative">
-                      <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
-                      <input 
-                        type="text" 
-                        value={billing.accountNumber}
-                        onChange={(e) => setBilling({...billing, accountNumber: e.target.value})}
-                        className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-text-secondary">IFSC Code</label>
-                    <div className="relative">
-                      <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
-                      <input 
-                        type="text" 
-                        value={billing.ifsc}
-                        onChange={(e) => setBilling({...billing, ifsc: e.target.value})}
-                        className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary uppercase focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-6 border-t border-divider flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-bold text-text-primary">Auto-accept UPI Payments</h4>
-                    <p className="text-xs text-text-secondary mt-1">Automatically verify payments via integrated UPI</p>
-                  </div>
-                  <button 
-                    onClick={() => setBilling({...billing, autoAcceptUPI: !billing.autoAcceptUPI})}
-                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${billing.autoAcceptUPI ? 'bg-accent-primary' : 'bg-slate-300 dark:bg-slate-600'}`}
-                  >
-                    <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${billing.autoAcceptUPI ? 'translate-x-5' : 'translate-x-0'}`} />
-                  </button>
-                </div>
-              </div>
-            </section>
-          ) : (
-            <section className="bg-card rounded-2xl shadow-card border border-divider overflow-hidden">
-              <div className="p-6 border-b border-divider flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100/50 text-green-600 flex items-center justify-center">
-                  <CreditCard className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-text-primary">Payment Methods</h2>
-                  <p className="text-sm text-text-secondary">Manage your saved credit cards</p>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="flex items-center justify-between p-4 bg-bg border border-divider rounded-xl mb-4">
-                  <div className="flex items-center gap-3">
-                     <div className="w-10 h-6 bg-slate-200 dark:bg-slate-700 rounded text-[10px] font-bold flex items-center justify-center text-slate-800 dark:text-slate-200">VISA</div>
-                     <div>
-                       <p className="text-sm font-medium text-text-primary">•••• •••• •••• 4242</p>
-                       <p className="text-xs text-text-secondary">Expires 12/28</p>
-                     </div>
-                  </div>
-                  <button className="text-sm font-medium text-accent-primary hover:text-accent-primary-hover">Remove</button>
-                </div>
-                <button className="btn-secondary w-full">
-                  + Add New Payment Method
-                </button>
-              </div>
-            </section>
-          )}
-
+            </div>
+          </section>
         </div>
 
-        {/* Right Column (App Preferences & Notifications) */}
+        {/* Right Column */}
         <div className="flex flex-col gap-8">
           
+          {/* Account Status */}
           <section className="bg-card rounded-2xl shadow-card border border-divider overflow-hidden">
             <div className="p-6 border-b border-divider flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-purple-100/50 text-purple-600 flex items-center justify-center">
                 <Globe className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-text-primary">Preferences</h2>
-                <p className="text-sm text-text-secondary">App localization settings</p>
+                <h2 className="text-lg font-bold text-text-primary">Account</h2>
+                <p className="text-sm text-text-secondary">Status & information</p>
               </div>
             </div>
-            
-            <div className="p-6 space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-text-secondary">Default Currency</label>
-                <select 
-                  value={preferences.currency}
-                  onChange={(e) => setPreferences({...preferences, currency: e.target.value})}
-                  className="w-full px-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all appearance-none cursor-pointer"
-                >
-                  <option>INR (₹)</option>
-                  <option>USD ($)</option>
-                  <option>EUR (€)</option>
-                  <option>GBP (£)</option>
-                </select>
+            <div className="p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-text-secondary">Status</span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  Active
+                </span>
               </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-text-secondary">Timezone</label>
-                <select 
-                  value={preferences.timezone}
-                  onChange={(e) => setPreferences({...preferences, timezone: e.target.value})}
-                  className="w-full px-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all appearance-none cursor-pointer"
-                >
-                  <option>Asia/Kolkata (IST)</option>
-                  <option>America/New_York (EST)</option>
-                  <option>Europe/London (GMT)</option>
-                  <option>Australia/Sydney (AEST)</option>
-                </select>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-text-secondary">Role</span>
+                <span className="text-sm font-medium text-text-primary capitalize">{role}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-text-secondary">Email</span>
+                <span className="text-sm font-medium text-text-primary truncate ml-4">{user.email || '—'}</span>
               </div>
             </div>
           </section>
 
+          {/* Notifications */}
           <section className="bg-card rounded-2xl shadow-card border border-divider overflow-hidden">
             <div className="p-6 border-b border-divider flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-orange-100/50 text-orange-600 flex items-center justify-center">
@@ -281,52 +144,26 @@ export default function SettingsPage() {
               </div>
               <div>
                 <h2 className="text-lg font-bold text-text-primary">Notifications</h2>
-                <p className="text-sm text-text-secondary">Manage your alerts</p>
+                <p className="text-sm text-text-secondary">Alert preferences</p>
               </div>
             </div>
-            
-            <div className="p-6 space-y-5">
+            <div className="p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="text-sm font-medium text-text-primary">Email Alerts</h4>
-                  <p className="text-xs text-text-secondary mt-0.5">Payment receipts & issues</p>
+                  <p className="text-xs text-text-secondary mt-0.5">Payment receipts & reminders</p>
                 </div>
-                <button 
-                  onClick={() => setPreferences({...preferences, emailAlerts: !preferences.emailAlerts})}
-                  className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${preferences.emailAlerts ? 'bg-accent-primary' : 'bg-slate-300 dark:bg-slate-600'}`}
-                >
-                  <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${preferences.emailAlerts ? 'translate-x-4' : 'translate-x-0'}`} />
-                </button>
+                <span className="text-xs font-medium text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded-full">Enabled</span>
               </div>
-
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-medium text-text-primary">SMS Reminders</h4>
-                  <p className="text-xs text-text-secondary mt-0.5">Critical alert notifications</p>
+                  <h4 className="text-sm font-medium text-text-primary">Bill Notifications</h4>
+                  <p className="text-xs text-text-secondary mt-0.5">When new bills are generated</p>
                 </div>
-                <button 
-                  onClick={() => setPreferences({...preferences, smsReminders: !preferences.smsReminders})}
-                  className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${preferences.smsReminders ? 'bg-accent-primary' : 'bg-slate-300 dark:bg-slate-600'}`}
-                >
-                  <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${preferences.smsReminders ? 'translate-x-4' : 'translate-x-0'}`} />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-sm font-medium text-text-primary">Weekly Reports</h4>
-                  <p className="text-xs text-text-secondary mt-0.5">Revenue & usage summaries</p>
-                </div>
-                <button 
-                  onClick={() => setPreferences({...preferences, weeklyReports: !preferences.weeklyReports})}
-                  className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${preferences.weeklyReports ? 'bg-accent-primary' : 'bg-slate-300 dark:bg-slate-600'}`}
-                >
-                  <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${preferences.weeklyReports ? 'translate-x-4' : 'translate-x-0'}`} />
-                </button>
+                <span className="text-xs font-medium text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded-full">Enabled</span>
               </div>
             </div>
           </section>
-
         </div>
       </div>
     </div>

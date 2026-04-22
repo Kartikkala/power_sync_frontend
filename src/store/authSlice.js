@@ -56,19 +56,21 @@ export const checkAuthAsync = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiClient.get('/user/profile');
+
       // If backend returns a proper JSON user object, use it
       if (typeof response.data === 'object' && response.data !== null && response.data.email) {
         return {
           ...response.data,
-          role: (response.data.role || '').toLowerCase(),
+          role: (response.data.role || '').replace(/^ROLE_/i, '').toLowerCase(),
         };
       }
-      // Otherwise, decode the JWT cookie to get user info
-      const jwtUser = parseJwtFromCookie();
-      if (jwtUser) return jwtUser;
 
-      // Final fallback — we know the user is authenticated (200 response)
-      return { email: 'user@powersync.com', role: 'landlord', fullname: 'User' };
+      // Fallback: read user info from the JWT cookie
+      const jwtUser = parseJwtFromCookie();
+      if (jwtUser && jwtUser.role) return jwtUser;
+
+      // Last resort fallback
+      return { email: '', role: 'tenant', fullname: 'User' };
     } catch (err) {
       return rejectWithValue(err.response?.data || 'Not authenticated');
     }

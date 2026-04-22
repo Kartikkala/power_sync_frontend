@@ -15,9 +15,18 @@ export function parseJwtFromCookie() {
     if (!match) return null;
     const token = match.split('=')[1];
     const payload = JSON.parse(atob(token.split('.')[1]));
+
+    // JWT stores roles as: roles: ["ROLE_TENANT"] or roles: ["ROLE_LANDLORD"]
+    let role = '';
+    if (Array.isArray(payload.roles) && payload.roles.length > 0) {
+      role = payload.roles[0].replace(/^ROLE_/i, '').toLowerCase();
+    } else if (payload.role) {
+      role = payload.role.replace(/^ROLE_/i, '').toLowerCase();
+    }
+
     return {
       email: payload.sub || payload.email,
-      role: (payload.role || '').toLowerCase(),
+      role,
       fullname: payload.fullname || payload.name || payload.sub,
     };
   } catch {

@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Zap, DollarSign, Calendar, AlertCircle } from 'lucide-react';
+import { Zap, DollarSign, Calendar, AlertCircle, Activity, Gauge, BatteryCharging } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMyBills, fetchRoomUsage, fetchPowerHistory } from '../store/powerSlice';
+import { useTelemetry } from '../hooks/useTelemetry';
 
 const TenantDashboard = () => {
   const dispatch = useDispatch();
   const { myBills, usage, powerHistory } = useSelector((state) => state.power);
+  const { telemetry, isConnected } = useTelemetry();
 
   useEffect(() => {
     dispatch(fetchMyBills()).unwrap()
@@ -35,6 +37,12 @@ const TenantDashboard = () => {
     kwh: entry.wattage || 0,
   }));
 
+  // Live telemetry values
+  const liveVoltage = telemetry?.voltage?.toFixed(1) ?? '---';
+  const liveCurrent = telemetry?.current?.toFixed(2) ?? '---';
+  const livePower = telemetry?.power?.toFixed(1) ?? '---';
+  const liveEnergy = telemetry?.energy?.toFixed(3) ?? '---';
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
@@ -45,7 +53,55 @@ const TenantDashboard = () => {
           <p className="text-text-secondary mt-1">Monitor your consumption and upcoming bills</p>
         </div>
         <div className="flex items-center gap-3">
+           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
+             isConnected 
+               ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+               : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+           }`}>
+             <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+             {isConnected ? 'Live' : 'Offline'}
+           </span>
            <span className="badge-success">Account Active</span>
+        </div>
+      </div>
+
+      {/* Live Telemetry Strip */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-card rounded-xl border border-divider p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+            <Gauge className="w-5 h-5 text-blue-500" />
+          </div>
+          <div>
+            <p className="text-[11px] font-medium text-text-tertiary uppercase tracking-wider">Voltage</p>
+            <p className="text-lg font-bold text-text-primary">{liveVoltage} <span className="text-xs font-normal text-text-tertiary">V</span></p>
+          </div>
+        </div>
+        <div className="bg-card rounded-xl border border-divider p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-yellow-50 dark:bg-yellow-900/30 flex items-center justify-center">
+            <Activity className="w-5 h-5 text-yellow-500" />
+          </div>
+          <div>
+            <p className="text-[11px] font-medium text-text-tertiary uppercase tracking-wider">Current</p>
+            <p className="text-lg font-bold text-text-primary">{liveCurrent} <span className="text-xs font-normal text-text-tertiary">A</span></p>
+          </div>
+        </div>
+        <div className="bg-card rounded-xl border border-divider p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center">
+            <Zap className="w-5 h-5 text-orange-500" />
+          </div>
+          <div>
+            <p className="text-[11px] font-medium text-text-tertiary uppercase tracking-wider">Power</p>
+            <p className="text-lg font-bold text-text-primary">{livePower} <span className="text-xs font-normal text-text-tertiary">W</span></p>
+          </div>
+        </div>
+        <div className="bg-card rounded-xl border border-divider p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-green-50 dark:bg-green-900/30 flex items-center justify-center">
+            <BatteryCharging className="w-5 h-5 text-green-500" />
+          </div>
+          <div>
+            <p className="text-[11px] font-medium text-text-tertiary uppercase tracking-wider">Energy</p>
+            <p className="text-lg font-bold text-text-primary">{liveEnergy} <span className="text-xs font-normal text-text-tertiary">kWh</span></p>
+          </div>
         </div>
       </div>
 
