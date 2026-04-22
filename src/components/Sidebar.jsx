@@ -7,7 +7,8 @@ import {
   Settings, 
   Server, 
   LogOut,
-  Sliders
+  Sliders,
+  Building2
 } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -79,6 +80,24 @@ export default function Sidebar({ isOpen, activeTab, onTabSelect }) {
                 </span>
               </div>
               {isOpen && activeTab === 'tenants' && <div className="w-1.5 h-1.5 rounded-full bg-[#0f9d78]"></div>}
+            </a>
+          )}
+
+          {user.role === 'landlord' && (
+            <a 
+              href="#" 
+              onClick={(e) => { e.preventDefault(); onTabSelect('properties'); }}
+              className={`flex items-center rounded-lg transition-colors relative group ${
+                activeTab === 'properties' ? 'bg-sidebar-active text-[#0f9d78]' : 'text-slate-400 hover:text-slate-200 hover:bg-sidebar-hover'
+              } ${isOpen ? 'justify-between px-3 py-2.5' : 'justify-center p-3 mx-1'}`}
+            >
+              <div className="flex items-center gap-3">
+                <Building2 className={`w-5 h-5 shrink-0 ${activeTab === 'properties' ? 'text-[#0f9d78]' : 'group-hover:text-slate-200 transition-colors'}`} />
+                <span className={`font-medium whitespace-nowrap transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
+                  Properties
+                </span>
+              </div>
+              {isOpen && activeTab === 'properties' && <div className="w-1.5 h-1.5 rounded-full bg-[#0f9d78]"></div>}
             </a>
           )}
 

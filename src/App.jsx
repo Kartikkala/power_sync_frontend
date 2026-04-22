@@ -6,6 +6,7 @@ import TransactionsPage from './components/TransactionsPage';
 import SettingsPage from './components/SettingsPage';
 import IotDeviceControl from './components/IotDeviceControl';
 import BillingConfiguration from './components/BillingConfiguration';
+import PropertyManagement from './components/PropertyManagement';
 import Sidebar from './components/Sidebar';
 import TenantDashboard from './components/TenantDashboard';
 import { useSelector } from 'react-redux';
@@ -97,6 +98,7 @@ function App() {
             {activeTab === 'settings' && <SettingsPage />}
             {activeTab === 'iot' && user.role === 'landlord' && <IotDeviceControl />}
             {activeTab === 'billing' && user.role === 'landlord' && <BillingConfiguration />}
+            {activeTab === 'properties' && user.role === 'landlord' && <PropertyManagement />}
           </div>
         </main>
       </div>
