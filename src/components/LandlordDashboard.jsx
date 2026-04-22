@@ -77,9 +77,9 @@ export default function LandlordDashboard() {
               <h2 className="text-[2rem] font-bold text-white flex items-center">
                 <span className="mr-1">₹</span>
                 {isEditingRate ? (
-                  <input 
-                    type="number"
-                    step="0.01"
+              <input 
+                type="number"
+                step="0.01"
                     value={tempRate}
                     onChange={(e) => setTempRate(e.target.value)}
                     className="w-24 bg-transparent border-b border-white outline-none focus:border-[#f97316] text-[2rem] font-bold text-white p-0 m-0"

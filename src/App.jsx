@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import TopBar from './components/TopBar';
 import LandlordDashboard from './components/LandlordDashboard';
 import TenantManagement from './components/TenantManagement';
@@ -9,21 +9,34 @@ import BillingConfiguration from './components/BillingConfiguration';
 import PropertyManagement from './components/PropertyManagement';
 import Sidebar from './components/Sidebar';
 import TenantDashboard from './components/TenantDashboard';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { checkAuthAsync } from './store/authSlice';
 
 function App() {
   const user = useSelector(state => state.auth.user);
+  const authLoading = useSelector(state => state.auth.loading);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
+  // On mount, try to restore session from JWT cookie
   useEffect(() => {
-    if (!user) {
+    dispatch(checkAuthAsync())
+      .unwrap()
+      .catch(() => {}) // Not authenticated — will redirect below
+      .finally(() => setAuthChecked(true));
+  }, [dispatch]);
+
+  // Only redirect to auth after we've attempted to restore the session
+  useEffect(() => {
+    if (authChecked && !user) {
       navigate('/auth');
     }
-  }, [user, navigate]);
+  }, [authChecked, user, navigate]);
 
   // Handle resize for mobile default state
   useEffect(() => {

@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import AuthPage from './components/AuthPage.jsx'
+import TenantOnboardingPage from './components/TenantOnboardingPage.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -13,6 +14,7 @@ createRoot(document.getElementById('root')).render(
       <BrowserRouter>
         <Routes>
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/register" element={<TenantOnboardingPage />} />
           <Route path="/*" element={<App />} />
         </Routes>
       </BrowserRouter>

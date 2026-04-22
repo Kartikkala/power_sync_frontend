@@ -27,6 +27,30 @@ export const registerAsync = createAsyncThunk(
   }
 );
 
+export const verifyInvite = createAsyncThunk(
+  'auth/verifyInvite',
+  async (code, { rejectWithValue }) => {
+    try {
+      const resp = await apiClient.get('/auth/verify', { params: { code } });
+      return resp.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || 'Invalid or expired invitation');
+    }
+  }
+);
+
+export const registerTenant = createAsyncThunk(
+  'auth/registerTenant',
+  async (data, { rejectWithValue }) => {
+    try {
+      const resp = await apiClient.post('/auth/register-tenant', data);
+      return resp.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || 'Registration failed');
+    }
+  }
+);
+
 export const checkAuthAsync = createAsyncThunk(
   'auth/checkAuth',
   async (_, { rejectWithValue }) => {
@@ -82,10 +106,15 @@ export const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(checkAuthAsync.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(checkAuthAsync.fulfilled, (state, action) => {
+        state.loading = false;
         state.user = action.payload;
       })
       .addCase(checkAuthAsync.rejected, (state) => {
+        state.loading = false;
         state.user = null;
       });
   }
