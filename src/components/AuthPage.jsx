@@ -1,9 +1,22 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User, ArrowRight, Github, Zap } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { login } from '../store/authSlice';
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState('');
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Super simple mock logic: if email has 'admin', play as landlord, else tenant
+    const role = email.includes('admin') ? 'landlord' : 'tenant';
+    dispatch(login({ email, role, name: isLogin ? 'Welcome Back' : 'New Partner' }));
+    navigate('/');
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg relative overflow-hidden">
@@ -69,7 +82,7 @@ const AuthPage = () => {
               </p>
             </div>
 
-            <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); /* Mock Login */ window.location.href="/"; }}>
+            <form className="space-y-5" onSubmit={handleSubmit}>
               {!isLogin && (
                 <div className="space-y-1.5 animate-in fade-in slide-in-from-bottom-3 duration-500">
                   <label className="text-sm font-medium text-text-primary">Full Name</label>
@@ -92,6 +105,8 @@ const AuthPage = () => {
                   <input 
                     type="email" 
                     placeholder="name@company.com" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-11 pr-4 py-3 bg-bg border border-divider rounded-xl text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent-primary/20 focus:border-accent-primary transition-all shadow-sm"
                     required
                   />

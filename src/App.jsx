@@ -7,11 +7,22 @@ import SettingsPage from './components/SettingsPage';
 import IotDeviceControl from './components/IotDeviceControl';
 import BillingConfiguration from './components/BillingConfiguration';
 import Sidebar from './components/Sidebar';
+import TenantDashboard from './components/TenantDashboard';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('landlord');
+  const user = useSelector(state => state.auth.user);
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+    }
+  }, [user, navigate]);
 
   // Handle resize for mobile default state
   useEffect(() => {
@@ -37,6 +48,8 @@ function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
+
+  if (!user) return null;
 
   return (
     <div className="h-screen flex bg-bg overflow-hidden relative">
@@ -76,12 +89,14 @@ function App() {
         
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="max-w-[1400px] w-full mx-auto">
-            {activeTab === 'landlord' || activeTab === 'dashboard' ? <LandlordDashboard /> : null}
-            {activeTab === 'tenants' && <TenantManagement />}
+            {(activeTab === 'landlord' || activeTab === 'dashboard') && (
+              user.role === 'landlord' ? <LandlordDashboard /> : <TenantDashboard />
+            )}
+            {activeTab === 'tenants' && user.role === 'landlord' && <TenantManagement />}
             {activeTab === 'transactions' && <TransactionsPage />}
             {activeTab === 'settings' && <SettingsPage />}
-            {activeTab === 'iot' && <IotDeviceControl />}
-            {activeTab === 'billing' && <BillingConfiguration />}
+            {activeTab === 'iot' && user.role === 'landlord' && <IotDeviceControl />}
+            {activeTab === 'billing' && user.role === 'landlord' && <BillingConfiguration />}
           </div>
         </main>
       </div>

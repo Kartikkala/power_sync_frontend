@@ -9,8 +9,20 @@ import {
   LogOut,
   Sliders
 } from 'lucide-react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { logout } from '../store/authSlice';
 
 export default function Sidebar({ isOpen, activeTab, onTabSelect }) {
+  const user = useSelector((state) => state.auth.user) || { name: 'Guest', role: 'landlord' };
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/auth');
+  };
+
   return (
     <div 
       className={`h-full bg-sidebar-bg flex flex-col transition-all duration-300 ease-in-out shrink-0 border-r border-[#1f2937] ${
@@ -52,21 +64,23 @@ export default function Sidebar({ isOpen, activeTab, onTabSelect }) {
             {isOpen && activeTab === 'dashboard' && <div className="w-1.5 h-1.5 rounded-full bg-[#0f9d78]"></div>}
           </a>
 
-          <a 
-            href="#" 
-            onClick={(e) => { e.preventDefault(); onTabSelect('tenants'); }}
-            className={`flex items-center rounded-lg transition-colors relative group ${
-              activeTab === 'tenants' ? 'bg-sidebar-active text-[#0f9d78]' : 'text-slate-400 hover:text-slate-200 hover:bg-sidebar-hover'
-            } ${isOpen ? 'justify-between px-3 py-2.5' : 'justify-center p-3 mx-1'}`}
-          >
-            <div className="flex items-center gap-3">
-              <Users className={`w-5 h-5 shrink-0 ${activeTab === 'tenants' ? 'text-[#0f9d78]' : 'group-hover:text-slate-200 transition-colors'}`} />
-              <span className={`font-medium whitespace-nowrap transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
-                Tenant Management
-              </span>
-            </div>
-            {isOpen && activeTab === 'tenants' && <div className="w-1.5 h-1.5 rounded-full bg-[#0f9d78]"></div>}
-          </a>
+          {user.role === 'landlord' && (
+            <a 
+              href="#" 
+              onClick={(e) => { e.preventDefault(); onTabSelect('tenants'); }}
+              className={`flex items-center rounded-lg transition-colors relative group ${
+                activeTab === 'tenants' ? 'bg-sidebar-active text-[#0f9d78]' : 'text-slate-400 hover:text-slate-200 hover:bg-sidebar-hover'
+              } ${isOpen ? 'justify-between px-3 py-2.5' : 'justify-center p-3 mx-1'}`}
+            >
+              <div className="flex items-center gap-3">
+                <Users className={`w-5 h-5 shrink-0 ${activeTab === 'tenants' ? 'text-[#0f9d78]' : 'group-hover:text-slate-200 transition-colors'}`} />
+                <span className={`font-medium whitespace-nowrap transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
+                  Tenant Management
+                </span>
+              </div>
+              {isOpen && activeTab === 'tenants' && <div className="w-1.5 h-1.5 rounded-full bg-[#0f9d78]"></div>}
+            </a>
+          )}
 
           {/* Transactions */}
           <a 
@@ -93,36 +107,40 @@ export default function Sidebar({ isOpen, activeTab, onTabSelect }) {
           <h3 className={`px-2 text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-2 whitespace-nowrap transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
             Configuration
           </h3>
-          <a 
-            href="#" 
-            onClick={(e) => { e.preventDefault(); onTabSelect('billing'); }}
-            className={`flex items-center rounded-lg transition-colors relative group ${
-              activeTab === 'billing' ? 'bg-sidebar-active text-[#0f9d78]' : 'text-slate-400 hover:text-slate-200 hover:bg-sidebar-hover'
-            } ${isOpen ? 'justify-between px-3 py-2.5' : 'justify-center p-3 mx-1'}`}
-          >
-            <div className="flex items-center gap-3">
-              <Sliders className={`w-5 h-5 shrink-0 ${activeTab === 'billing' ? 'text-[#0f9d78]' : 'group-hover:text-slate-200 transition-colors'}`} />
-               <span className={`font-medium whitespace-nowrap transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
-                Billing Configuration
-              </span>
-            </div>
-            {isOpen && activeTab === 'billing' && <div className="w-1.5 h-1.5 rounded-full bg-[#0f9d78]"></div>}
-          </a>
-          <a 
-            href="#" 
-            onClick={(e) => { e.preventDefault(); onTabSelect('iot'); }}
-            className={`flex items-center rounded-lg transition-colors relative group ${
-              activeTab === 'iot' ? 'bg-sidebar-active text-[#0f9d78]' : 'text-slate-400 hover:text-slate-200 hover:bg-sidebar-hover'
-            } ${isOpen ? 'justify-between px-3 py-2.5' : 'justify-center p-3 mx-1'}`}
-          >
-            <div className="flex items-center gap-3">
-              <Server className={`w-5 h-5 shrink-0 ${activeTab === 'iot' ? 'text-[#0f9d78]' : 'group-hover:text-slate-200 transition-colors'}`} />
-              <span className={`font-medium whitespace-nowrap transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
-                IoT Device Control
-              </span>
-            </div>
-            {isOpen && activeTab === 'iot' && <div className="w-1.5 h-1.5 rounded-full bg-[#0f9d78]"></div>}
-          </a>
+          {user.role === 'landlord' && (
+            <React.Fragment>
+              <a 
+                href="#" 
+                onClick={(e) => { e.preventDefault(); onTabSelect('billing'); }}
+                className={`flex items-center rounded-lg transition-colors relative group ${
+                  activeTab === 'billing' ? 'bg-sidebar-active text-[#0f9d78]' : 'text-slate-400 hover:text-slate-200 hover:bg-sidebar-hover'
+                } ${isOpen ? 'justify-between px-3 py-2.5' : 'justify-center p-3 mx-1'}`}
+              >
+                <div className="flex items-center gap-3">
+                  <Sliders className={`w-5 h-5 shrink-0 ${activeTab === 'billing' ? 'text-[#0f9d78]' : 'group-hover:text-slate-200 transition-colors'}`} />
+                  <span className={`font-medium whitespace-nowrap transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
+                    Billing Configuration
+                  </span>
+                </div>
+                {isOpen && activeTab === 'billing' && <div className="w-1.5 h-1.5 rounded-full bg-[#0f9d78]"></div>}
+              </a>
+              <a 
+                href="#" 
+                onClick={(e) => { e.preventDefault(); onTabSelect('iot'); }}
+                className={`flex items-center rounded-lg transition-colors relative group ${
+                  activeTab === 'iot' ? 'bg-sidebar-active text-[#0f9d78]' : 'text-slate-400 hover:text-slate-200 hover:bg-sidebar-hover'
+                } ${isOpen ? 'justify-between px-3 py-2.5' : 'justify-center p-3 mx-1'}`}
+              >
+                <div className="flex items-center gap-3">
+                  <Server className={`w-5 h-5 shrink-0 ${activeTab === 'iot' ? 'text-[#0f9d78]' : 'group-hover:text-slate-200 transition-colors'}`} />
+                  <span className={`font-medium whitespace-nowrap transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
+                    IoT Device Control
+                  </span>
+                </div>
+                {isOpen && activeTab === 'iot' && <div className="w-1.5 h-1.5 rounded-full bg-[#0f9d78]"></div>}
+              </a>
+            </React.Fragment>
+          )}
           <a 
             href="#" 
             onClick={(e) => { e.preventDefault(); onTabSelect('settings'); }}
@@ -149,11 +167,11 @@ export default function Sidebar({ isOpen, activeTab, onTabSelect }) {
               <img src="https://ui-avatars.com/api/?name=R+C&background=ffd5cc&color=f97316&bold=true" alt="User" className="w-full h-full object-cover" />
             </div>
             <div className={`flex flex-col flex-1 min-w-0 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
-              <span className="text-white text-sm font-medium leading-tight truncate">Robert Chen</span>
-              <span className="text-slate-400 text-xs truncate">Landlord Admin</span>
+              <span className="text-white text-sm font-medium leading-tight truncate">{user.name}</span>
+              <span className="text-slate-400 text-xs truncate">{user.role === 'landlord' ? 'Landlord Admin' : 'Tenant User'}</span>
             </div>
           </div>
-          <button className={`text-slate-400 hover:text-white transition-colors p-1 shrink-0 ${isOpen ? 'opacity-100' : 'opacity-0 hidden'}`}>
+          <button onClick={handleLogout} className={`text-slate-400 hover:text-white transition-colors p-1 shrink-0 ${isOpen ? 'opacity-100' : 'opacity-0 hidden'}`}>
             <LogOut className="w-4 h-4" />
           </button>
         </div>
