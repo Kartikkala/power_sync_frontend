@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { 
   User, 
   Building2, 
@@ -13,9 +14,11 @@ import {
 } from 'lucide-react';
 
 export default function SettingsPage() {
+  const user = useSelector((state) => state.auth.user) || { role: 'landlord', name: 'Alexender Doe', email: 'landlord@electric.com' };
+
   const [profile, setProfile] = useState({
-    name: 'Alexender Doe',
-    email: 'landlord@electric.com',
+    name: user.name,
+    email: user.email,
     phone: '+91 98765 43210',
     company: 'Skyline Properties LLC'
   });
@@ -105,93 +108,124 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-text-secondary">Company / Property Name</label>
-                <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
-                  <input 
-                    type="text" 
-                    value={profile.company}
-                    onChange={(e) => setProfile({...profile, company: e.target.value})}
-                    className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Billing & Bank Details */}
-          <section className="bg-card rounded-2xl shadow-card border border-divider overflow-hidden">
-            <div className="p-6 border-b border-divider flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-green-100/50 text-green-600 flex items-center justify-center">
-                <Landmark className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-text-primary">Bank & Billing</h2>
-                <p className="text-sm text-text-secondary">Where you receive your tenant payments</p>
-              </div>
-            </div>
-            
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {user.role === 'landlord' && (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-text-secondary">Account Holder Name</label>
-                  <input 
-                    type="text" 
-                    value={billing.accountName}
-                    onChange={(e) => setBilling({...billing, accountName: e.target.value})}
-                    className="w-full px-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-text-secondary">Bank Name</label>
-                  <input 
-                    type="text" 
-                    value={billing.bankName}
-                    onChange={(e) => setBilling({...billing, bankName: e.target.value})}
-                    className="w-full px-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-text-secondary">Account Number</label>
+                  <label className="text-sm font-medium text-text-secondary">Company / Property Name</label>
                   <div className="relative">
-                    <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
+                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
                     <input 
                       type="text" 
-                      value={billing.accountNumber}
-                      onChange={(e) => setBilling({...billing, accountNumber: e.target.value})}
+                      value={profile.company}
+                      onChange={(e) => setProfile({...profile, company: e.target.value})}
                       className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-text-secondary">IFSC Code</label>
-                  <div className="relative">
-                    <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
-                    <input 
-                      type="text" 
-                      value={billing.ifsc}
-                      onChange={(e) => setBilling({...billing, ifsc: e.target.value})}
-                      className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary uppercase focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-divider flex items-center justify-between">
-                <div>
-                  <h4 className="text-sm font-bold text-text-primary">Auto-accept UPI Payments</h4>
-                  <p className="text-xs text-text-secondary mt-1">Automatically verify payments via integrated UPI</p>
-                </div>
-                <button 
-                  onClick={() => setBilling({...billing, autoAcceptUPI: !billing.autoAcceptUPI})}
-                  className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${billing.autoAcceptUPI ? 'bg-accent-primary' : 'bg-slate-300 dark:bg-slate-600'}`}
-                >
-                  <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${billing.autoAcceptUPI ? 'translate-x-5' : 'translate-x-0'}`} />
-                </button>
-              </div>
+              )}
             </div>
           </section>
+
+          {/* Billing & Bank Details */}
+          {user.role === 'landlord' ? (
+            <section className="bg-card rounded-2xl shadow-card border border-divider overflow-hidden">
+              <div className="p-6 border-b border-divider flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-green-100/50 text-green-600 flex items-center justify-center">
+                  <Landmark className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-text-primary">Bank & Billing</h2>
+                  <p className="text-sm text-text-secondary">Where you receive your tenant payments</p>
+                </div>
+              </div>
+              
+              <div className="p-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-text-secondary">Account Holder Name</label>
+                    <input 
+                      type="text" 
+                      value={billing.accountName}
+                      onChange={(e) => setBilling({...billing, accountName: e.target.value})}
+                      className="w-full px-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-text-secondary">Bank Name</label>
+                    <input 
+                      type="text" 
+                      value={billing.bankName}
+                      onChange={(e) => setBilling({...billing, bankName: e.target.value})}
+                      className="w-full px-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-text-secondary">Account Number</label>
+                    <div className="relative">
+                      <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
+                      <input 
+                        type="text" 
+                        value={billing.accountNumber}
+                        onChange={(e) => setBilling({...billing, accountNumber: e.target.value})}
+                        className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-text-secondary">IFSC Code</label>
+                    <div className="relative">
+                      <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
+                      <input 
+                        type="text" 
+                        value={billing.ifsc}
+                        onChange={(e) => setBilling({...billing, ifsc: e.target.value})}
+                        className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary uppercase focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-divider flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold text-text-primary">Auto-accept UPI Payments</h4>
+                    <p className="text-xs text-text-secondary mt-1">Automatically verify payments via integrated UPI</p>
+                  </div>
+                  <button 
+                    onClick={() => setBilling({...billing, autoAcceptUPI: !billing.autoAcceptUPI})}
+                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${billing.autoAcceptUPI ? 'bg-accent-primary' : 'bg-slate-300 dark:bg-slate-600'}`}
+                  >
+                    <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${billing.autoAcceptUPI ? 'translate-x-5' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+              </div>
+            </section>
+          ) : (
+            <section className="bg-card rounded-2xl shadow-card border border-divider overflow-hidden">
+              <div className="p-6 border-b border-divider flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-green-100/50 text-green-600 flex items-center justify-center">
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-text-primary">Payment Methods</h2>
+                  <p className="text-sm text-text-secondary">Manage your saved credit cards</p>
+                </div>
+              </div>
+              <div className="p-6">
+                <div className="flex items-center justify-between p-4 bg-bg border border-divider rounded-xl mb-4">
+                  <div className="flex items-center gap-3">
+                     <div className="w-10 h-6 bg-slate-200 dark:bg-slate-700 rounded text-[10px] font-bold flex items-center justify-center text-slate-800 dark:text-slate-200">VISA</div>
+                     <div>
+                       <p className="text-sm font-medium text-text-primary">•••• •••• •••• 4242</p>
+                       <p className="text-xs text-text-secondary">Expires 12/28</p>
+                     </div>
+                  </div>
+                  <button className="text-sm font-medium text-accent-primary hover:text-accent-primary-hover">Remove</button>
+                </div>
+                <button className="btn-secondary w-full">
+                  + Add New Payment Method
+                </button>
+              </div>
+            </section>
+          )}
 
         </div>
 
