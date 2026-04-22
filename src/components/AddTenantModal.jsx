@@ -1,9 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, User, Phone, Mail, Building, Hash, Calendar } from 'lucide-react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchMyApartments, fetchRooms, sendInvitation } from '../store/propertySlice';
 
 export default function AddTenantModal({ isOpen, onClose }) {
-  const [gracePeriod, setGracePeriod] = useState(5);
-  const [autoCut, setAutoCut] = useState(false);
+  const [email, setEmail] = useState('');
+  const [selectedRoomId, setSelectedRoomId] = useState('');
+  const [sending, setSending] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const dispatch = useDispatch();
+  const { apartments, rooms } = useSelector((state) => state.property);
+
+  useEffect(() => {
+    if (isOpen && apartments.length === 0) {
+      dispatch(fetchMyApartments()).unwrap().then(apts => {
+        apts.forEach(apt => dispatch(fetchRooms(apt.id)));
+      }).catch(e => console.error('Failed to fetch properties:', e));
+    }
+  }, [isOpen, apartments.length, dispatch]);
+
+  // Rooms without a tenant
+  const vacantRooms = rooms.filter(r => !r.currentTenant);
+
+  const handleSubmit = async () => {
+    if (!email || !selectedRoomId) {
+      setMessage('Please enter an email and select a room.');
+      return;
+    }
+    setSending(true);
+    setMessage('');
+    try {
+      await dispatch(sendInvitation({ email, roomId: parseInt(selectedRoomId) })).unwrap();
+      setMessage('Invitation sent successfully!');
+      setEmail('');
+      setSelectedRoomId('');
+      setTimeout(() => { onClose(); setMessage(''); }, 1500);
+    } catch (err) {
+      setMessage('Failed to send invitation: ' + (typeof err === 'string' ? err : err.message || 'Unknown error'));
+    } finally {
+      setSending(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -19,7 +57,7 @@ export default function AddTenantModal({ isOpen, onClose }) {
       <div className="relative bg-card w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-divider">
-          <h2 className="text-xl font-bold text-text-primary">Add New Tenant</h2>
+          <h2 className="text-xl font-bold text-text-primary">Invite Tenant</h2>
           <button 
             onClick={onClose}
             className="p-2 text-text-tertiary hover:bg-slate-100 rounded-lg hover:text-text-primary transition-colors"
@@ -28,156 +66,55 @@ export default function AddTenantModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Body (Scrollable) */}
-        <div className="p-6 overflow-y-auto flex flex-col gap-8">
+        {/* Body */}
+        <div className="p-6 overflow-y-auto flex flex-col gap-6">
           
-          {/* Section 1: Tenant Profile */}
-          <section>
-            <h3 className="text-[13px] font-bold text-accent-primary uppercase tracking-wider mb-4 flex items-center gap-2">
-              <User className="w-4 h-4" />
-              Tenant Profile
-            </h3>
-            
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">Full Name</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-tertiary">
-                    <User className="w-4 h-4" />
-                  </div>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. John Doe"
-                    className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                  />
-                </div>
-              </div>
+          <p className="text-sm text-text-secondary">
+            Send an invitation email to the tenant. They will receive a link to register and get linked to the selected room.
+          </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">Phone Number</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-tertiary">
-                      <Phone className="w-4 h-4" />
-                    </div>
-                    <input 
-                      type="text" 
-                      placeholder="+1 (555) 000-0000"
-                      className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">Email Address</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-tertiary">
-                      <Mail className="w-4 h-4" />
-                    </div>
-                    <input 
-                      type="email" 
-                      placeholder="john@example.com"
-                      className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Section 2: Unit Configuration */}
-          <section>
-            <h3 className="text-[13px] font-bold text-accent-primary uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Building className="w-4 h-4" />
-              Unit Configuration
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">Room / Unit No.</label>
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    placeholder="101"
-                    className="w-full px-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">Unit Type</label>
-                <select className="w-full px-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all appearance-none cursor-pointer">
-                  <option>Standard</option>
-                  <option>Premium</option>
-                  <option>Commercial</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">IoT Smart Meter ID</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-tertiary">
-                    <Hash className="w-4 h-4" />
-                  </div>
-                  <input 
-                    type="text" 
-                    placeholder="SM-2024-X8"
-                    className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Section 3: Billing & Automation */}
-          <section>
-            <h3 className="text-[13px] font-bold text-accent-primary uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Billing & Automation
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">Billing Start Date</label>
-                <div className="relative">
-                  <input 
-                    type="date" 
-                    className="w-full px-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
-                <div>
-                  <h4 className="text-sm font-medium text-text-primary">Enable Auto-Cut</h4>
-                  <p className="text-xs text-text-secondary mt-0.5">Cut power on overdue</p>
-                </div>
-                <button 
-                  type="button"
-                  onClick={() => setAutoCut(!autoCut)}
-                  className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${autoCut ? 'bg-accent-primary' : 'bg-slate-200'}`}
-                >
-                  <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${autoCut ? 'translate-x-5' : 'translate-x-0'}`} />
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between items-end mb-2">
-                <label className="block text-sm font-medium text-text-primary">Grace Period (Days)</label>
-                <span className="text-sm font-bold text-accent-primary">{gracePeriod} Days</span>
+          {/* Tenant Email */}
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">Tenant Email</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-tertiary">
+                <Mail className="w-4 h-4" />
               </div>
               <input 
-                type="range" 
-                min="0" 
-                max="15" 
-                value={gracePeriod}
-                onChange={(e) => setGracePeriod(e.target.value)}
-                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-accent-primary"
+                type="email" 
+                placeholder="tenant@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all"
               />
-              <div className="flex justify-between mt-2">
-                <span className="text-xs text-text-tertiary">0 days</span>
-                <span className="text-xs text-text-tertiary">15 days</span>
-              </div>
             </div>
-          </section>
+          </div>
+
+          {/* Room Selection */}
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">Assign to Room</label>
+            <select 
+              value={selectedRoomId}
+              onChange={(e) => setSelectedRoomId(e.target.value)}
+              className="w-full px-3 py-2 bg-bg border border-divider rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-all appearance-none cursor-pointer"
+            >
+              <option value="">Select a vacant room...</option>
+              {vacantRooms.map(room => (
+                <option key={room.id} value={room.id}>
+                  Room {room.roomNumber} (Floor {room.floorNo})
+                </option>
+              ))}
+            </select>
+            {vacantRooms.length === 0 && rooms.length > 0 && (
+              <p className="text-xs text-text-tertiary mt-1">All rooms are occupied.</p>
+            )}
+          </div>
+
+          {message && (
+            <div className={`text-sm font-medium p-3 rounded-lg ${message.includes('success') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+              {message}
+            </div>
+          )}
 
         </div>
 
@@ -189,8 +126,12 @@ export default function AddTenantModal({ isOpen, onClose }) {
           >
             Cancel
           </button>
-          <button className="px-5 py-2 text-sm font-medium text-white bg-accent-primary rounded-lg hover:bg-accent-primary-hover transition-colors shadow-sm">
-            Save Tenant
+          <button 
+            onClick={handleSubmit}
+            disabled={sending}
+            className="px-5 py-2 text-sm font-medium text-white bg-accent-primary rounded-lg hover:bg-accent-primary-hover transition-colors shadow-sm disabled:opacity-50"
+          >
+            {sending ? 'Sending...' : 'Send Invitation'}
           </button>
         </div>
       </div>

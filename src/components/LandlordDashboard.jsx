@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, IndianRupee, Users, Zap, TrendingUp, TrendingDown, Edit2, ShieldAlert, CreditCard } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setBaseRate } from '../store/billingSlice';
+import { setBaseRate, fetchUnpaidBills } from '../store/billingSlice';
+import { fetchMyApartments, fetchRooms } from '../store/propertySlice';
 import UsageChart from './UsageChart';
 import TransactionsTable from './TransactionsTable';
 import AddTenantModal from './AddTenantModal';
@@ -11,12 +12,27 @@ export default function LandlordDashboard() {
   const [isEditingRate, setIsEditingRate] = useState(false);
   const [tempRate, setTempRate] = useState('');
   const globalBaseRate = useSelector((state) => state.billing.baseRate);
+  const { apartments, rooms, loading: propertyLoading } = useSelector((state) => state.property);
+  const { unpaidBills } = useSelector((state) => state.billing);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchMyApartments()).unwrap().then(apts => {
+      apts.forEach(apt => dispatch(fetchRooms(apt.id)));
+    }).catch(e => console.error('Failed to fetch apartments:', e));
+    dispatch(fetchUnpaidBills());
+  }, [dispatch]);
 
   const handleSaveRate = () => {
     dispatch(setBaseRate(parseFloat(tempRate) || 0));
     setIsEditingRate(false);
   };
+
+  // Computed metrics from API data
+  const activeTenants = rooms.filter(r => r.currentTenant).length;
+  const totalRooms = rooms.length;
+  const totalRevenue = unpaidBills.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
+  const totalConsumption = unpaidBills.reduce((sum, b) => sum + (b.unitsConsumed || 0), 0);
 
   return (
     <div className="flex flex-col gap-8">
@@ -86,16 +102,12 @@ export default function LandlordDashboard() {
               <CreditCard className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[13px] font-medium text-text-secondary leading-none mb-1.5">Total Revenue</p>
-              <h3 className="text-2xl font-bold text-text-primary leading-none">₹124,500</h3>
+              <p className="text-[13px] font-medium text-text-secondary leading-none mb-1.5">Total Pending</p>
+              <h3 className="text-2xl font-bold text-text-primary leading-none">₹{totalRevenue.toFixed(2)}</h3>
             </div>
           </div>
           <div className="flex items-center gap-1.5 mt-auto text-[13px]">
-            <span className="text-success font-medium flex items-center">
-              <TrendingUp className="w-3.5 h-3.5 mr-0.5" />
-              ~12%
-            </span>
-            <span className="text-text-tertiary">vs last month</span>
+            <span className="text-text-tertiary">{unpaidBills.length} unpaid bill{unpaidBills.length !== 1 ? 's' : ''}</span>
           </div>
         </div>
 
@@ -107,11 +119,11 @@ export default function LandlordDashboard() {
             </div>
             <div>
               <p className="text-[13px] font-medium text-text-secondary leading-none mb-1.5">Active Tenants</p>
-              <h3 className="text-2xl font-bold text-text-primary leading-none">24</h3>
+              <h3 className="text-2xl font-bold text-text-primary leading-none">{propertyLoading ? '--' : activeTenants}</h3>
             </div>
           </div>
           <div className="mt-auto text-[13px] text-text-tertiary">
-            Total Capacity: 30 Units
+            Total Capacity: {totalRooms} Units
           </div>
         </div>
 
@@ -124,17 +136,12 @@ export default function LandlordDashboard() {
             <div>
               <p className="text-[13px] font-medium text-text-secondary leading-none mb-1.5">Consumption</p>
               <div className="flex items-baseline gap-1 leading-none">
-                <h3 className="text-2xl font-bold text-text-primary">14.2</h3>
-                <span className="text-text-primary font-bold text-sm">MWh</span>
+                <h3 className="text-2xl font-bold text-text-primary">{totalConsumption.toFixed(2)} kWh</h3>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-1.5 mt-auto text-[13px]">
-            <span className="text-error font-medium flex items-center">
-              <TrendingUp className="w-3.5 h-3.5 mr-0.5" />
-              ~5%
-            </span>
-            <span className="text-text-tertiary">vs last month</span>
+            <span className="text-text-tertiary">This billing cycle</span>
           </div>
         </div>
 
@@ -142,20 +149,15 @@ export default function LandlordDashboard() {
         <div className="premium-card flex flex-col h-full">
           <div className="flex items-center gap-4 mb-4">
             <div className="icon-wrap-orange w-12 h-12 rounded-xl flex items-center justify-center bg-orange-100 text-orange-500">
-              {/* Made a custom shield-like icon using lucide */}
               <ShieldAlert className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[13px] font-medium text-text-secondary leading-none mb-1.5">Total Units</p>
-              <h3 className="text-2xl font-bold text-text-primary leading-none">18,450</h3>
+              <p className="text-[13px] font-medium text-text-secondary leading-none mb-1.5">Total Rooms</p>
+              <h3 className="text-2xl font-bold text-text-primary leading-none">{propertyLoading ? '--' : totalRooms}</h3>
             </div>
           </div>
           <div className="flex items-center gap-1.5 mt-auto text-[13px]">
-            <span className="text-success font-medium flex items-center">
-              <TrendingUp className="w-3.5 h-3.5 mr-0.5 text-green-500" />
-              ~8%
-            </span>
-            <span className="text-text-tertiary">kWh Consumed</span>
+            <span className="text-text-tertiary">Across {apartments.length} propert{apartments.length !== 1 ? 'ies' : 'y'}</span>
           </div>
         </div>
 

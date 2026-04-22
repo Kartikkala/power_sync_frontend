@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { logout } from '../store/authSlice';
 
 export default function Sidebar({ isOpen, activeTab, onTabSelect }) {
-  const user = useSelector((state) => state.auth.user) || { name: 'Guest', role: 'landlord' };
+  const user = useSelector((state) => state.auth.user) || { fullname: 'Guest', role: 'landlord' };
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -167,7 +167,7 @@ export default function Sidebar({ isOpen, activeTab, onTabSelect }) {
               <img src="https://ui-avatars.com/api/?name=R+C&background=ffd5cc&color=f97316&bold=true" alt="User" className="w-full h-full object-cover" />
             </div>
             <div className={`flex flex-col flex-1 min-w-0 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
-              <span className="text-white text-sm font-medium leading-tight truncate">{user.name}</span>
+              <span className="text-white text-sm font-medium leading-tight truncate">{user.fullname || user.name || 'User'}</span>
               <span className="text-slate-400 text-xs truncate">{user.role === 'landlord' ? 'Landlord Admin' : 'Tenant User'}</span>
             </div>
           </div>
