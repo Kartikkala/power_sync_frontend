@@ -38,6 +38,18 @@ export const generateBills = createAsyncThunk(
   }
 );
 
+export const createPaymentOrder = createAsyncThunk(
+  'billing/createPaymentOrder',
+  async (billId, { rejectWithValue }) => {
+    try {
+      const resp = await apiClient.post('/payment/create-order', { billId });
+      return resp.data; // expects { paymentSessionId, orderId }
+    } catch (err) {
+      return rejectWithValue(err.response?.data || 'Failed to create payment order');
+    }
+  }
+);
+
 const billingSlice = createSlice({
   name: 'billing',
   initialState: {

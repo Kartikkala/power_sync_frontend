@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Zap, DollarSign, Calendar, AlertCircle, Activity, Gauge, BatteryCharging } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMyBills, fetchRoomUsage, fetchPowerHistory } from '../store/powerSlice';
 import { useTelemetry } from '../hooks/useTelemetry';
+
+const MAX_CHART_POINTS = 60; // Keep chart lightweight
 
 const TenantDashboard = () => {
   const dispatch = useDispatch();
@@ -31,11 +33,31 @@ const TenantDashboard = () => {
   const daysRemaining = Math.ceil((nextBillingDate - now) / (1000 * 60 * 60 * 24));
   const nextBillingStr = nextBillingDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
-  // Transform power history for chart
-  const chartData = (powerHistory || []).map(entry => ({
-    time: new Date(entry.recordedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    kwh: entry.wattage || 0,
-  }));
+  // Transform + downsample power history for chart (max 60 points)
+  const chartData = useMemo(() => {
+    const raw = powerHistory || [];
+    if (raw.length === 0) return [];
+
+    // Downsample: pick evenly spaced points
+    const step = Math.max(1, Math.floor(raw.length / MAX_CHART_POINTS));
+    const sampled = [];
+    for (let i = 0; i < raw.length; i += step) {
+      const entry = raw[i];
+      sampled.push({
+        time: new Date(entry.recordedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        kwh: entry.wattage || 0,
+      });
+    }
+    // Always include the last point
+    if (sampled.length > 0 && sampled[sampled.length - 1] !== raw[raw.length - 1]) {
+      const last = raw[raw.length - 1];
+      sampled.push({
+        time: new Date(last.recordedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        kwh: last.wattage || 0,
+      });
+    }
+    return sampled;
+  }, [powerHistory]);
 
   // Live telemetry values
   const liveVoltage = telemetry?.voltage?.toFixed(1) ?? '---';
@@ -183,8 +205,9 @@ const TenantDashboard = () => {
                     dataKey="time" 
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }}
+                    tick={{ fill: 'var(--color-text-secondary)', fontSize: 11 }}
                     dy={10}
+                    interval={Math.max(0, Math.floor(chartData.length / 8))}
                   />
                   <YAxis 
                     axisLine={false}
@@ -204,10 +227,11 @@ const TenantDashboard = () => {
                     type="monotone" 
                     dataKey="kwh" 
                     stroke="#ff6b00" 
-                    strokeWidth={3}
+                    strokeWidth={2}
                     fillOpacity={1} 
                     fill="url(#colorKwh)" 
-                    animationDuration={1500}
+                    isAnimationActive={false}
+                    dot={false}
                   />
                 </AreaChart>
               </ResponsiveContainer>

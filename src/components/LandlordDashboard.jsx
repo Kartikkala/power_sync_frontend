@@ -3,6 +3,7 @@ import { Plus, IndianRupee, Users, Zap, TrendingUp, TrendingDown, Edit2, ShieldA
 import { useSelector, useDispatch } from 'react-redux';
 import { setBaseRate, fetchUnpaidBills } from '../store/billingSlice';
 import { fetchMyApartments, fetchRooms } from '../store/propertySlice';
+import apiClient from '../api/client';
 import UsageChart from './UsageChart';
 import TransactionsTable from './TransactionsTable';
 import AddTenantModal from './AddTenantModal';
@@ -11,6 +12,7 @@ export default function LandlordDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditingRate, setIsEditingRate] = useState(false);
   const [tempRate, setTempRate] = useState('');
+  const [liveUsages, setLiveUsages] = useState([]);
   const globalBaseRate = useSelector((state) => state.billing.baseRate);
   const { apartments, rooms, loading: propertyLoading } = useSelector((state) => state.property);
   const { unpaidBills } = useSelector((state) => state.billing);
@@ -23,16 +25,41 @@ export default function LandlordDashboard() {
     dispatch(fetchUnpaidBills());
   }, [dispatch]);
 
+  // Fetch live usage for each occupied room
+  useEffect(() => {
+    if (rooms.length === 0) return;
+    const occupiedRooms = rooms.filter(r => r.currentTenant);
+    if (occupiedRooms.length === 0) return;
+
+    Promise.allSettled(
+      occupiedRooms.map(room =>
+        apiClient.get(`/power/room/${room.id}/usage`).then(r => r.data)
+      )
+    ).then(results => {
+      const usages = results
+        .filter(r => r.status === 'fulfilled')
+        .map(r => r.value);
+      setLiveUsages(usages);
+    });
+  }, [rooms]);
+
   const handleSaveRate = () => {
     dispatch(setBaseRate(parseFloat(tempRate) || 0));
     setIsEditingRate(false);
   };
 
-  // Computed metrics from API data
+  // Computed metrics — use LIVE usage data when available, fall back to bills
   const activeTenants = rooms.filter(r => r.currentTenant).length;
   const totalRooms = rooms.length;
-  const totalRevenue = unpaidBills.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
-  const totalConsumption = unpaidBills.reduce((sum, b) => sum + (b.unitsConsumed || 0), 0);
+
+  const liveConsumption = liveUsages.reduce((sum, u) => sum + (u.unitsConsumed || 0), 0);
+  const liveEstimatedCost = liveUsages.reduce((sum, u) => sum + (u.estimatedCost || 0), 0);
+  const billRevenue = unpaidBills.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
+  const billConsumption = unpaidBills.reduce((sum, b) => sum + (b.unitsConsumed || 0), 0);
+
+  // Use live data if available, otherwise fall back to bill data
+  const totalConsumption = liveConsumption > 0 ? liveConsumption : billConsumption;
+  const totalRevenue = liveEstimatedCost > 0 ? liveEstimatedCost : billRevenue;
 
   return (
     <div className="flex flex-col gap-8">

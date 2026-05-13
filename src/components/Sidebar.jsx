@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { logout } from '../store/authSlice';
 
 export default function Sidebar({ isOpen, activeTab, onTabSelect }) {
-  const user = useSelector((state) => state.auth.user) || { fullname: 'Guest', role: 'landlord' };
+  const user = useSelector((state) => state.auth.user) || { fullname: 'Guest', role: '' };
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
