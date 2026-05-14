@@ -21,13 +21,20 @@ export default function Sidebar({ isOpen, activeTab, onTabSelect }) {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    // Clear the JWT cookie
-    document.cookie = 'jwt=; Max-Age=0; path=/;';
-    // Try to hit backend logout endpoint (ignore errors)
-    try { await apiClient.post('/auth/logout'); } catch {}
-    // Clear Redux state
+    // Clear Redux state first
     dispatch(logout());
-    // Prevent AuthPage auto-login from re-authenticating
+    // Clear cookies from JS side (works for non-HttpOnly cookies)
+    document.cookie = 'jwt=; Max-Age=0; path=/;';
+    document.cookie = 'JSESSIONID=; Max-Age=0; path=/;';
+    // Hit Spring Security's logout endpoint to clear HttpOnly cookies
+    try {
+      await fetch('/logout', { method: 'POST', credentials: 'include' });
+    } catch {}
+    // Also try the API logout
+    try {
+      await apiClient.post('/auth/logout');
+    } catch {}
+    // Prevent AuthPage auto-login
     sessionStorage.setItem('explicit_logout', 'true');
     navigate('/auth');
   };

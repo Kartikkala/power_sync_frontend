@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, IndianRupee, Users, Zap, TrendingUp, TrendingDown, Edit2, ShieldAlert, CreditCard } from 'lucide-react';
+import { Plus, IndianRupee, Users, Zap, TrendingUp, TrendingDown, ShieldAlert, CreditCard } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setBaseRate, fetchUnpaidBills } from '../store/billingSlice';
+import { fetchUnpaidBills } from '../store/billingSlice';
 import { fetchMyApartments, fetchRooms } from '../store/propertySlice';
 import apiClient from '../api/client';
 import UsageChart from './UsageChart';
@@ -10,10 +10,7 @@ import AddTenantModal from './AddTenantModal';
 
 export default function LandlordDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditingRate, setIsEditingRate] = useState(false);
-  const [tempRate, setTempRate] = useState('');
   const [liveUsages, setLiveUsages] = useState([]);
-  const globalBaseRate = useSelector((state) => state.billing.baseRate);
   const { apartments, rooms, loading: propertyLoading } = useSelector((state) => state.property);
   const { unpaidBills } = useSelector((state) => state.billing);
   const dispatch = useDispatch();
@@ -43,10 +40,6 @@ export default function LandlordDashboard() {
     });
   }, [rooms]);
 
-  const handleSaveRate = () => {
-    dispatch(setBaseRate(parseFloat(tempRate) || 0));
-    setIsEditingRate(false);
-  };
 
   // Computed metrics — use LIVE usage data when available, fall back to bills
   const activeTenants = rooms.filter(r => r.currentTenant).length;
@@ -81,44 +74,23 @@ export default function LandlordDashboard() {
       {/* Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         
-        {/* Electricity Rate Card (Dark) */}
+        {/* Electricity Rate Card (Dark) — read-only, from backend */}
         <div className="dark-rate-card flex flex-col h-full relative overflow-hidden">
           <div className="flex justify-between items-start mb-6">
             <div className="w-10 h-10 rounded-xl bg-[#f97316]/20 text-[#f97316] flex items-center justify-center">
               <IndianRupee className="w-5 h-5" />
             </div>
-            {isEditingRate ? (
-              <button className="btn-dark bg-green-500 hover:bg-green-600 text-white border-transparent" onClick={handleSaveRate}>
-                Save
-              </button>
-            ) : (
-              <button className="btn-dark" onClick={() => { setTempRate(globalBaseRate); setIsEditingRate(true); }}>
-                <Edit2 className="w-3 h-3" />
-                Edit
-              </button>
-            )}
           </div>
           <div className="mt-auto">
             <p className="text-sm text-slate-300 font-medium mb-1">Electricity Rate</p>
             <div className="flex items-baseline gap-1">
               <h2 className="text-[2rem] font-bold text-white flex items-center">
                 <span className="mr-1">₹</span>
-                {isEditingRate ? (
-              <input 
-                type="number"
-                step="0.01"
-                    value={tempRate}
-                    onChange={(e) => setTempRate(e.target.value)}
-                    className="w-24 bg-transparent border-b border-white outline-none focus:border-[#f97316] text-[2rem] font-bold text-white p-0 m-0"
-                    autoFocus
-                  />
-                ) : (
-                  <span>{globalBaseRate.toFixed(2)}</span>
-                )}
+                <span>{(liveUsages.length > 0 ? liveUsages[0].unitRate : (unpaidBills.length > 0 ? unpaidBills[0].unitRate : 0))?.toFixed(2) || '0.00'}</span>
               </h2>
               <span className="text-slate-400 text-sm">/kWh</span>
             </div>
-            <p className="text-xs text-slate-400 mt-4">Base rate for all calculations</p>
+            <p className="text-xs text-slate-400 mt-4">Set per IoT device in backend</p>
           </div>
         </div>
 

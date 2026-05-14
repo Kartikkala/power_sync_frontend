@@ -65,12 +65,8 @@ export const checkAuthAsync = createAsyncThunk(
         };
       }
 
-      // Fallback: read user info from the JWT cookie
-      const jwtUser = parseJwtFromCookie();
-      if (jwtUser && jwtUser.role) return jwtUser;
-
-      // Last resort fallback
-      return { email: '', role: 'tenant', fullname: 'User' };
+      // No valid user data — not authenticated
+      return rejectWithValue('No valid user data');
     } catch (err) {
       return rejectWithValue(err.response?.data || 'Not authenticated');
     }

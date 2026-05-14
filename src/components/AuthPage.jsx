@@ -1,24 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Mail, Lock, User, ArrowRight, Zap } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { loginAsync, registerAsync, checkAuthAsync } from '../store/authSlice';
+import { useDispatch } from 'react-redux';
+import { loginAsync, registerAsync } from '../store/authSlice';
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
 
-  // After OAuth redirect, check if we already have a valid session
-  useEffect(() => {
-    dispatch(checkAuthAsync()).unwrap()
-      .then((u) => {
-        if (u && u.email) navigate('/');
-      })
-      .catch(() => {}); // Not logged in — stay on auth page
-  }, [dispatch, navigate]);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

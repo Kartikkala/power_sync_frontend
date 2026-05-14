@@ -53,17 +53,12 @@ export const createPaymentOrder = createAsyncThunk(
 const billingSlice = createSlice({
   name: 'billing',
   initialState: {
-    baseRate: 8.50,
     unpaidBills: [],
     roomBills: [],
     loading: false,
     error: null,
   },
-  reducers: {
-    setBaseRate: (state, action) => {
-      state.baseRate = action.payload;
-    }
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchUnpaidBills.pending, (state) => {
@@ -89,5 +84,4 @@ const billingSlice = createSlice({
   }
 });
 
-export const { setBaseRate } = billingSlice.actions;
 export default billingSlice.reducer;
