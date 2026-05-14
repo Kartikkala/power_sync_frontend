@@ -8,11 +8,13 @@ import {
   Loader2,
   IndianRupee,
   CheckCircle2,
+  FileDown,
 } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchUnpaidBills, createPaymentOrder } from '../store/billingSlice';
 import { fetchMyBills } from '../store/powerSlice';
 import { load } from '@cashfreepayments/cashfree-js';
+import { downloadInvoice } from '../utils/invoiceGenerator';
 
 export default function TransactionsPage() {
   const dispatch = useDispatch();
@@ -267,43 +269,73 @@ export default function TransactionsPage() {
                       <td className="px-6 py-4 text-right">
                         {/* Tenant: Pay Now for unpaid bills */}
                         {!isLandlord && !isPaid && (
-                          <button
-                            onClick={() => handlePayNow(bill.id)}
-                            disabled={isPaying}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-[#0f9d78] hover:bg-[#0d8a6a] text-white rounded-lg text-xs font-semibold transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {isPaying ? (
-                              <>
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                Processing...
-                              </>
-                            ) : (
-                              <>
-                                <IndianRupee className="w-3.5 h-3.5" />
-                                Pay Now
-                              </>
-                            )}
-                          </button>
+                          <div className="flex items-center gap-2 justify-end">
+                            <button
+                              onClick={() => handlePayNow(bill.id)}
+                              disabled={isPaying}
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-[#0f9d78] hover:bg-[#0d8a6a] text-white rounded-lg text-xs font-semibold transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {isPaying ? (
+                                <>
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                  Processing...
+                                </>
+                              ) : (
+                                <>
+                                  <IndianRupee className="w-3.5 h-3.5" />
+                                  Pay Now
+                                </>
+                              )}
+                            </button>
+                          </div>
                         )}
-                        {/* Tenant: Paid badge */}
+                        {/* Tenant: Paid — show download */}
                         {!isLandlord && isPaid && (
-                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-600">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            Paid
-                          </span>
+                          <div className="flex items-center gap-2 justify-end">
+                            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-600">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              Paid
+                            </span>
+                            <button
+                              onClick={() => downloadInvoice(bill, bill.tenant)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-divider text-text-secondary rounded-lg text-xs font-medium hover:bg-hover-bg transition-colors"
+                              title="Download Invoice"
+                            >
+                              <FileDown className="w-3.5 h-3.5" />
+                              Invoice
+                            </button>
+                          </div>
                         )}
-                        {/* Landlord: Reminder button */}
+                        {/* Landlord: Reminder button + download */}
                         {isLandlord && !isPaid && (
-                          <button className="inline-flex items-center gap-2 px-3 py-1.5 border border-green-200 dark:border-green-800 text-green-600 rounded-lg text-xs font-medium hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
-                            <MessageCircle className="w-3.5 h-3.5" />
-                            Reminder
-                          </button>
+                          <div className="flex items-center gap-2 justify-end">
+                            <button className="inline-flex items-center gap-2 px-3 py-1.5 border border-green-200 dark:border-green-800 text-green-600 rounded-lg text-xs font-medium hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
+                              <MessageCircle className="w-3.5 h-3.5" />
+                              Reminder
+                            </button>
+                            <button
+                              onClick={() => downloadInvoice(bill, bill.tenant)}
+                              className="inline-flex items-center gap-1.5 p-1.5 text-text-tertiary hover:text-text-primary hover:bg-hover-bg rounded-lg transition-colors"
+                              title="Download Invoice"
+                            >
+                              <FileDown className="w-4 h-4" />
+                            </button>
+                          </div>
                         )}
                         {isLandlord && isPaid && (
-                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-600">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            Received
-                          </span>
+                          <div className="flex items-center gap-2 justify-end">
+                            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-600">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              Received
+                            </span>
+                            <button
+                              onClick={() => downloadInvoice(bill, bill.tenant)}
+                              className="inline-flex items-center gap-1.5 p-1.5 text-text-tertiary hover:text-text-primary hover:bg-hover-bg rounded-lg transition-colors"
+                              title="Download Invoice"
+                            >
+                              <FileDown className="w-4 h-4" />
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>

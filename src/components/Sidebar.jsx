@@ -13,14 +13,22 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../store/authSlice';
+import apiClient from '../api/client';
 
 export default function Sidebar({ isOpen, activeTab, onTabSelect }) {
   const user = useSelector((state) => state.auth.user) || { fullname: 'Guest', role: '' };
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Clear the JWT cookie
+    document.cookie = 'jwt=; Max-Age=0; path=/;';
+    // Try to hit backend logout endpoint (ignore errors)
+    try { await apiClient.post('/auth/logout'); } catch {}
+    // Clear Redux state
     dispatch(logout());
+    // Prevent AuthPage auto-login from re-authenticating
+    sessionStorage.setItem('explicit_logout', 'true');
     navigate('/auth');
   };
 

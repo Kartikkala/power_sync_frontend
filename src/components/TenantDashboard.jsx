@@ -4,6 +4,7 @@ import { Zap, DollarSign, Calendar, AlertCircle, Activity, Gauge, BatteryChargin
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMyBills, fetchRoomUsage, fetchPowerHistory } from '../store/powerSlice';
 import { useTelemetry } from '../hooks/useTelemetry';
+import { downloadInvoice } from '../utils/invoiceGenerator';
 
 const MAX_CHART_POINTS = 60; // Keep chart lightweight
 
@@ -258,7 +259,16 @@ const TenantDashboard = () => {
           <div className="premium-card">
             <h4 className="font-semibold text-text-primary mb-4">Quick Actions</h4>
             <div className="space-y-3">
-              <button className="w-full btn-secondary justify-between group">
+              <button 
+                className="w-full btn-secondary justify-between group"
+                onClick={() => {
+                  const lastBill = (myBills || []).find(b => b.paymentStatus === 'PAID') || (myBills || [])[0];
+                  if (lastBill) {
+                    downloadInvoice(lastBill, { fullname: lastBill.tenant?.fullname, email: lastBill.tenant?.email, contactNo: lastBill.tenant?.contactNo });
+                  }
+                }}
+                disabled={!myBills || myBills.length === 0}
+              >
                 Download Last Invoice
                 <DollarSign className="w-4 h-4 text-text-tertiary group-hover:text-text-primary" />
               </button>
