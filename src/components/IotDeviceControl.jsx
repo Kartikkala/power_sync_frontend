@@ -6,14 +6,21 @@ import {
   Power, 
   RefreshCcw, 
   Zap, 
-  Activity, 
+  Activity,
   AlertTriangle,
-  Eye
+  Eye,
+  Globe,
+  Check,
+  X,
+  Loader2,
+  Trash2,
+  PlusCircle
 } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchMyApartments, fetchRooms } from '../store/propertySlice';
 import IncomingTelemetryModal from './IncomingTelemetryModal';
 import { useTelemetry } from '../hooks/useTelemetry';
+import apiClient from '../api/client';
 
 export default function IotDeviceControl() {
   const [telemetryHistory, setTelemetryHistory] = useState([]);
@@ -27,6 +34,28 @@ export default function IotDeviceControl() {
       apts.forEach(apt => dispatch(fetchRooms(apt.id)));
     }).catch(e => console.error('Failed to fetch properties:', e));
   }, [dispatch]);
+
+  // Fetch device info (IP, dbId, status) for each room
+  const [deviceInfoMap, setDeviceInfoMap] = useState({}); // keyed by Room_xxx
+  useEffect(() => {
+    if (rooms.length === 0) return;
+    rooms.forEach(room => {
+      apiClient.get(`/device/room/${room.id}`)
+        .then(resp => {
+          const d = resp.data;
+          setDeviceInfoMap(prev => ({
+            ...prev,
+            [`Room_${room.roomNumber}`]: {
+              dbId: d.id,
+              ipAddress: d.ipAddress || null,
+              backendStatus: d.status,
+              unitRate: d.unitRatePerKwh,
+            }
+          }));
+        })
+        .catch(() => {}); // device may not exist yet
+    });
+  }, [rooms]);
 
   // Build device list from rooms
   const [deviceStates, setDeviceStates] = useState({});
@@ -57,15 +86,25 @@ export default function IotDeviceControl() {
     }
   }, [telemetry]);
 
+  const [togglingId, setTogglingId] = useState(null);
+  const [powerOverrides, setPowerOverrides] = useState({});
+  const [editingIpDevice, setEditingIpDevice] = useState(null);
+  const [ipInput, setIpInput] = useState('');
+  const [ipSaving, setIpSaving] = useState(false);
+
   const devices = rooms.map(room => {
     const nodeId = `Room_${room.roomNumber}`;
     const liveState = deviceStates[nodeId] || {};
+    const info = deviceInfoMap[nodeId] || {};
     return {
       id: nodeId,
       unit: `Room ${room.roomNumber}`,
       roomId: room.id,
+      dbId: info.dbId || null,
+      ipAddress: info.ipAddress || null,
+      backendStatus: info.backendStatus || null,
       status: liveState.status || 'offline',
-      powerState: liveState.status === 'online',
+      powerState: powerOverrides[nodeId] !== undefined ? powerOverrides[nodeId] : (info.backendStatus === 'ON' || liveState.status === 'online'),
       currentDraw: liveState.currentDraw || 0,
       voltage: liveState.voltage || 0,
       power: liveState.power || 0,
@@ -75,9 +114,63 @@ export default function IotDeviceControl() {
     };
   });
 
-  const togglePower = (id) => {
-    // This would need a backend endpoint to actually cut power
-    console.log('Toggle power for device:', id);
+  const togglePower = async (device) => {
+    if (togglingId) return;
+    setTogglingId(device.id);
+    try {
+      let deviceDbId = device.dbId;
+      if (!deviceDbId) {
+        alert('Could not resolve IoT device ID for this room');
+        return;
+      }
+      const newState = !device.powerState;
+      const endpoint = newState ? 'on' : 'off';
+      await apiClient.post(`/device/${deviceDbId}/${endpoint}`);
+      setPowerOverrides(prev => ({ ...prev, [device.id]: newState }));
+    } catch (err) {
+      console.error('Toggle failed:', err);
+      alert('Failed to toggle device: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
+  const [isAdding, setIsAdding] = useState(false);
+  const handleAddDevice = async (roomId) => {
+    setIsAdding(true);
+    try {
+      await apiClient.post('/device', { roomId });
+      const resp = await apiClient.get(`/device/room/${roomId}`);
+      const d = resp.data;
+      const room = rooms.find(r => r.id === roomId);
+      setDeviceInfoMap(prev => ({
+        ...prev,
+        [`Room_${room.roomNumber}`]: {
+          dbId: d.id,
+          ipAddress: d.ipAddress || null,
+          backendStatus: d.status,
+          unitRate: d.unitRatePerKwh,
+        }
+      }));
+    } catch (err) {
+      alert('Failed to add device: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  const handleDeleteDevice = async (dbId, roomNumber) => {
+    if (!window.confirm('Are you sure you want to remove this device? This will break telemetry for this room until replaced.')) return;
+    try {
+      await apiClient.delete(`/device/${dbId}`);
+      setDeviceInfoMap(prev => {
+        const next = { ...prev };
+        delete next[`Room_${roomNumber}`];
+        return next;
+      });
+    } catch (err) {
+      alert('Failed to delete device: ' + (err.response?.data?.error || err.message));
+    }
   };
 
   const activeCount = devices.filter(d => d.status === 'online').length;
@@ -170,16 +263,31 @@ export default function IotDeviceControl() {
                   <span className="text-xs font-medium text-text-tertiary">{device.id}{device.tenant ? ` • ${device.tenant.fullname}` : ''}</span>
                 </div>
                 <div className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${
+                  !device.dbId ? 'bg-slate-100/20 text-slate-500 border border-slate-200/20' :
                   device.status === 'online' ? 'bg-green-100/20 text-green-600 border border-green-200/20' : 'bg-red-100/20 text-red-600 border border-red-200/20'
                 }`}>
-                  {device.status === 'online' ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
-                  {device.status === 'online' ? 'Online' : 'Offline'}
+                  {!device.dbId ? <AlertTriangle className="w-3 h-3" /> : device.status === 'online' ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
+                  {!device.dbId ? 'Not Installed' : device.status === 'online' ? 'Online' : 'Offline'}
                 </div>
               </div>
 
               {/* Content */}
               <div className="p-5 space-y-4 flex-1">
-                <div className="grid grid-cols-2 gap-4">
+                {!device.dbId ? (
+                  <div className="h-full flex flex-col items-center justify-center text-center space-y-3">
+                    <p className="text-sm text-text-secondary">No IoT device assigned to this room.</p>
+                    <button 
+                      onClick={() => handleAddDevice(device.roomId)}
+                      disabled={isAdding}
+                      className="btn-primary"
+                    >
+                      {isAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlusCircle className="w-4 h-4" />}
+                      Add Device
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col bg-bg p-3 rounded-xl border border-divider">
                     <span className="text-xs text-text-secondary mb-1">Current Draw</span>
                     <div className="flex items-center gap-1.5 text-text-primary font-bold">
@@ -208,7 +316,81 @@ export default function IotDeviceControl() {
                     <span className="text-text-primary font-medium w-8 text-right">{device.signal}%</span>
                   </div>
                 </div>
+                  </>
+                )}
               </div>
+
+              {/* IP Configuration */}
+              {device.dbId && (
+              <div className="px-1 pb-2">
+                {editingIpDevice === device.id ? (
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
+                    <input
+                      type="text"
+                      placeholder="192.168.1.x"
+                      value={ipInput}
+                      onChange={(e) => setIpInput(e.target.value)}
+                      className="flex-1 px-2 py-1 text-xs bg-bg border border-divider rounded-lg text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-primary"
+                      autoFocus
+                    />
+                    <button
+                      disabled={ipSaving}
+                      onClick={async () => {
+                        if (!ipInput.trim()) return;
+                        setIpSaving(true);
+                        try {
+                          let deviceDbId = device.dbId;
+                          if (!deviceDbId) {
+                            const latestResp = await apiClient.get(`/power/room/${device.roomId}/latest`);
+                            deviceDbId = latestResp.data?.iotDevice?.id;
+                          }
+                          if (!deviceDbId) { alert('Could not resolve device ID'); return; }
+                          await apiClient.put(`/device/${deviceDbId}`, { ipAddress: ipInput.trim() });
+                          // Update local cache
+                          setDeviceInfoMap(prev => ({
+                            ...prev,
+                            [device.id]: { ...prev[device.id], ipAddress: ipInput.trim() }
+                          }));
+                          setEditingIpDevice(null);
+                          setIpInput('');
+                        } catch (err) {
+                          alert('Failed: ' + (err.response?.data?.error || err.message));
+                        } finally {
+                          setIpSaving(false);
+                        }
+                      }}
+                      className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors"
+                    >
+                      {ipSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                    </button>
+                    <button
+                      onClick={() => { setEditingIpDevice(null); setIpInput(''); }}
+                      className="p-1 text-text-tertiary hover:bg-hover-bg rounded transition-colors"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-xs">
+                      <Globe className="w-3 h-3 text-text-tertiary" />
+                      {device.ipAddress ? (
+                        <span className="text-text-primary font-mono">{device.ipAddress}</span>
+                      ) : (
+                        <span className="text-text-tertiary italic">No IP set</span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => { setEditingIpDevice(device.id); setIpInput(device.ipAddress || ''); }}
+                      className="text-xs text-accent-primary hover:underline font-medium"
+                    >
+                      {device.ipAddress ? 'Edit' : 'Set IP'}
+                    </button>
+                  </div>
+                )}
+              </div>
+              )}
 
               {/* Actions */}
               <div className="p-5 border-t border-divider flex items-center justify-between">
@@ -216,15 +398,24 @@ export default function IotDeviceControl() {
                   <button 
                     onClick={() => setSelectedDevice(device)}
                     className={`text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-medium transition-colors ${
-                      device.status === 'offline' 
+                      !device.dbId || device.status === 'offline' 
                         ? 'bg-bg text-text-tertiary border-divider cursor-not-allowed' 
                         : 'bg-card text-text-primary border-divider hover:bg-hover-bg hover:text-accent-primary'
                     }`}
-                    disabled={device.status === 'offline'}
+                    disabled={!device.dbId || device.status === 'offline'}
                   >
                     <Eye className="w-3.5 h-3.5" />
-                    View Live Stats
+                    Live Stats
                   </button>
+                  {device.dbId && (
+                    <button
+                      onClick={() => handleDeleteDevice(device.dbId, device.unit.replace('Room ', ''))}
+                      className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-medium transition-colors bg-bg text-red-500 border-red-100 hover:bg-red-50"
+                      title="Remove Device"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -232,9 +423,9 @@ export default function IotDeviceControl() {
                     {device.powerState ? 'Power On' : 'Power Cut'}
                   </span>
                   <button 
-                    onClick={() => togglePower(device.id)}
-                    disabled={device.status === 'offline'}
-                    className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${device.status === 'offline' ? 'bg-slate-300 dark:bg-slate-700 opacity-50 cursor-not-allowed' : device.powerState ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`}
+                    onClick={() => togglePower(device)}
+                    disabled={!device.dbId || device.status === 'offline' || togglingId === device.id}
+                    className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${!device.dbId || device.status === 'offline' || togglingId === device.id ? 'bg-slate-300 dark:bg-slate-700 opacity-50 cursor-not-allowed' : device.powerState ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`}
                   >
                     <span className={`pointer-events-none flex items-center justify-center h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${device.powerState ? 'translate-x-5' : 'translate-x-0'}`}>
                       <Power className={`w-3.5 h-3.5 ${device.powerState ? 'text-green-500' : 'text-slate-400'}`} />
